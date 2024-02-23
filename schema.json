@@ -1,0 +1,73 @@
+{ 
+    "pipeline": "Tp RNAseq",
+    "usage": "nextflow run main.nf --manifest <manifest> --annotation <gff> --reference <fasta> --library_strandedness [reverse] --outdir [./results]",
+    "params": {
+        "Input": {
+            "manifest": {
+                "default": "none",
+                "help_text": "Path to a CSV manifest comprising 3 columns (sample_id, R1, R2). R1 and R2 columns contain paths to *.fastq.gz files."
+            },
+            "reference": {
+                "default": "none",
+                "help_text": "Path to reference genome in FASTA format."
+            },
+            "annotation": {
+                "default": "none",
+                "help_text": "Path to genome annotation in GFF format."
+            },
+            "library_strandedness": {
+                "default": "reverse",
+                "help_text": "Strandedness of the RNAseq library."
+            }
+        },
+        "QC": {
+            "trimmer": {
+                "default": "fastp",
+                "help_text": "Software to use for trimming. Options: fastp."
+            },
+            "fastp_args": {
+                "default": "none",
+                "help_text": "Options and arguments that will be supplied to fastp to modify QC behaviour."
+            },
+            "multiqc_config": {
+                "default": "none",
+                "help_text": "A multiqc configuration file (yml) that can be used to customise the multiqc behaviour. See https://multiqc.info/docs/getting_started/config/."
+            }
+        },
+        "Mapping": {
+            "bowtie2_args": {
+                "default": "--local --very-sensitive-local --rdg 8,4 --rfg 8,4 --no-mixed",
+                "help_text": "Options and arguments that will be supplied to Bowtie2 to modify mapping behaviour."
+            },
+            "dedup": {
+                "default": "false",
+                "help_text": "If true, deduplicate bam file."
+            },
+            "keep_sorted_bam": {
+                "default": "false",
+                "help_text": "If true, keep the sorted bam file generated from mapping."
+            },
+            "keep_dedup_bam": {
+                "default": "false",
+                "help_text": "If true, keep the deduplicated bam file."
+            }
+
+        },
+        "Counting": {
+            "htseq_args": {
+                "default": "--type gene --idattr locus_tag --nonunique none --secondary-alignments ignore",
+                "help_text": "Options and arguments that will be supplied to htseq-count to modify counting behaviour."
+            },
+            "samtools_filter_args": {
+                "default": "-f 2",
+                "help_text": "Arguments supplied to samtools to will be used to filter alignments of interest for counting. Acceptable arguments: -f or -F.\nThe default will only keep reads that aligned in proper pairs."
+            }
+        },
+        "Logging": {
+            "monochrome_logs": {
+                "default": "false",
+                "help_text": "Should logs appear in plain (non-coloured) ASCII"
+            }
+        }
+    }
+}
