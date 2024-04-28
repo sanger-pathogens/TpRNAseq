@@ -30,6 +30,9 @@ include {
 include {
     MULTIQC
 } from './modules/multiqc'
+include {
+    COMBINE_FASTQS
+} from './modules/custom.nf'
 
 //
 // SUBWORKFLOWS
@@ -73,6 +76,24 @@ if (params.help) {
 ========================================================================================
 */
 
+def combine_meta(meta_list) {
+    def new_meta = [:]
+    meta_list.forEach { meta ->
+        new_meta = new_meta + meta
+    }
+    return new_meta
+}
+
+def collate_read_pairs(read_pairs_list) {
+    def read_1_list = []
+    def read_2_list = []
+    read_pairs_list.forEach { read_pair ->
+        read_1_list << read_pair[0]
+        read_2_list << read_pair[1]
+    }
+    return [read_1_list, read_2_list]
+}
+
 workflow {
 
     reference = file(params.reference, checkIfExists: true)
@@ -92,6 +113,21 @@ workflow {
         .dump(tag: 'ch_reads')
         .set { ch_reads }
 
+    // COMBINE FASTQS BY SAMPLE
+    if (params.combine_fastqs) {
+        ch_reads
+            .map { meta, reads -> [meta.ID, meta, reads] }
+            .groupTuple()
+            .map { meta_id, meta_list, read_pairs_list ->
+                def read_lists = collate_read_pairs(read_pairs_list)
+                [combine_meta(meta_list), read_lists[0], read_lists[1]]
+            }
+            .set { ch_grouped_reads }
+
+        COMBINE_FASTQS(ch_grouped_reads)
+        COMBINE_FASTQS.out.combined_reads
+            .set { ch_reads }
+    }
 
     // TODO: FROM nf-core - to adapt
     // ch_multiqc_config          = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
