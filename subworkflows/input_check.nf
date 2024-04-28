@@ -17,26 +17,10 @@ workflow INPUT_CHECK {
         .filter{ meta, reads -> reads[0] != 'NA' || reads[1] != 'NA' }  // Single end not supported
         .set { shortreads }
 
-    // validate that sample IDs are unique if not using --combine_fastqs
-    // prevents user accidentally overwriting data in publish dirs
     if (!params.combine_fastqs) {
+        // validate that sample IDs are unique
+        // prevents accidentally overwriting output in publish dirs
         validate_unique_sample_ids(samplesheet)
-        // Similar, but slightly more cumbersome way to do it via channels XD
-        // shortreads
-        //     .toList()
-        //     .map { collected_input ->
-        //         def sample_ids = []
-        //         collected_input.forEach {
-        //             sample_ids << it[0].ID
-        //         }
-        //         duplicate_sample_ids = \
-        //             sample_ids.countBy { it }
-        //             .findAll {it.value > 1}
-        //             .collect{it.key}
-        //         if (duplicate_sample_ids) {
-        //             exit 1, "Please check input samplesheet -> Found duplicate sample ids (not valid unless --combine_fastqs is used)!\n${duplicate_sample_ids}"
-        //         }
-        //     }
     }
 
     emit:
