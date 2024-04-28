@@ -171,6 +171,19 @@ workflow {
     // QC
     FASTQC_TRIM(ch_trimmed_reads)
 
+    // TODO Idea to provide a separate option for feeding lists of files into bowtie2 if user is not bothered about keeping combined fastq.gz files
+    // But would have to change the way we input into the bowtie2 process...
+    // if (params.group_for_bowtie2) {
+    //     ch_trimmed_reads
+    //         .map { meta, reads -> [meta.ID, meta, reads] }
+    //         .groupTuple()
+    //         .map { meta_id, meta_list, read_pairs_list ->
+    //             def read_lists = collate_read_pairs(read_pairs_list)
+    //             [combine_meta(meta_list), read_lists[0], read_lists[1]]
+    //         }
+    //         .set { ch_grouped_reads }
+    // }
+
     // MAPPING: Bowtie2
     BOWTIE2 (
         ch_trimmed_reads,
