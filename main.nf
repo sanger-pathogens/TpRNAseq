@@ -13,7 +13,8 @@ include {
     FILTER_BAM as FILTER_BAM_MINUS;
     SAMTOOLS_SORT;
     INDEX_REF;
-    SAMTOOLS_INDEX_BAM
+    SAMTOOLS_INDEX_BAM;
+    SAMTOOLS_INDEX_BAM as SAMTOOLS_INDEX_STRAND_SPECIFIC_BAM
 } from './modules/samtools'
 include {
     FASTQC as FASTQC_RAW;
@@ -35,6 +36,9 @@ include {
 include {
     COMBINE_FASTQS
 } from './modules/custom'
+include {
+    BEDTOOLS_GENOMECOV
+} from './modules/bedtools'
 
 //
 // SUBWORKFLOWS
@@ -236,6 +240,15 @@ workflow {
         FILTER_BAM_MINUS.out.filtered_bam
             .set { ch_filtered_minus_reads }
 
+        ch_filtered_minus_reads.mix(ch_filtered_plus_reads)
+            .set { strand_specific_bams }
+    
+        //TODO Wouldn't have to alias this if we put the strand-specific stuff in it's own subworkflow!
+        SAMTOOLS_INDEX_STRAND_SPECIFIC_BAM(strand_specific_bams)
+        SAMTOOLS_INDEX_STRAND_SPECIFIC_BAM.out.bam_index
+            .set { indexed_strand_specific_bams }
+
+        BEDTOOLS_GENOMECOV(indexed_strand_specific_bams)
     }
 
     FILTER_BAM(
