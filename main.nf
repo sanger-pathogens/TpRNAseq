@@ -32,7 +32,7 @@ include {
 } from './modules/multiqc'
 include {
     COMBINE_FASTQS
-} from './modules/custom.nf'
+} from './modules/custom'
 
 //
 // SUBWORKFLOWS
