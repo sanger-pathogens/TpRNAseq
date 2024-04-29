@@ -9,6 +9,8 @@ include {
 } from './modules/bowtie2'
 include {
     FILTER_BAM;
+    FILTER_BAM as FILTER_BAM_PLUS;
+    FILTER_BAM as FILTER_BAM_MINUS;
     SAMTOOLS_SORT;
     INDEX_REF;
     SAMTOOLS_INDEX_BAM
@@ -204,7 +206,43 @@ workflow {
         SAMTOOLS_SORT.out.sorted_reads.set { ch_reads_to_filter }
     }
 
-    FILTER_BAM(ch_reads_to_filter)
+    // FILTER BAM
+    Channel.value([
+        "user_defined",
+        "${params.samtools_filter_args}"
+    ]).set { user_filter }
+
+    if (params.strand_specific) {
+        Channel.value([
+            "plus",
+            "-f 3 -e '(flag.reverse && flag.read1) || (flag.mreverse && flag.read2)'"
+        ]).set { plus_filter }
+        Channel.value([
+            "minus",
+            "-f 3 -e '(flag.reverse && flag.read2) || (flag.mreverse && flag.read1)'"
+        ]).set { minus_filter }
+
+        FILTER_BAM_PLUS(
+            ch_reads_to_filter,
+            plus_filter
+        )
+        FILTER_BAM_PLUS.out.filtered_bam
+            .set { ch_filtered_plus_reads }
+
+        FILTER_BAM_MINUS(
+            ch_reads_to_filter,
+            minus_filter
+        )
+        FILTER_BAM_MINUS.out.filtered_bam
+            .set { ch_filtered_minus_reads }
+
+    }
+
+    FILTER_BAM(
+        ch_reads_to_filter,
+        user_filter
+    )
+    FILTER_BAM.out.filtered_bam
         .set { ch_filtered_reads }
     
     // COUNTING

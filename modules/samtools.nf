@@ -2,23 +2,29 @@ process FILTER_BAM {
     label 'cpu_2'
     label 'mem_100M'
     label 'time_1'
-    
+
+    publishDir "${params.outdir}/filtered_bams/${filter_name}_filter", enabled: params.keep_filtered_bam, mode: 'copy', overwrite: true
+
     container 'quay.io/biocontainers/samtools:1.16.1--h00cdaf9_2'
 
     input:
     tuple val(meta), path(mapped_reads)
+    tuple val(filter_name), val(filter_args)
 
     output:
-    tuple val(meta), path("${mapped_reads_bam}"),  emit: mapped_reads_bam
+    tuple val(new_meta), path("${filtered_bam}"),  emit: filtered_bam
 
     script:
-    mapped_reads_bam = "${meta.ID}.bam"
+    filtered_bam = "${meta.ID}.bam"
+    new_meta = meta.clone()
+    new_meta.filter = filter_name
+    //TODO Should we only modify meta, or should we also update the filename to include the filter name. This could result in [sample_id_user.bam, sample_id_plus.bam, sample_id_minus.bam]
     """
     samtools view -@ ${task.cpus} \
-                  -bS \
+                  -b \
                   -h \
-                  -o ${mapped_reads_bam} \
-                  ${params.samtools_filter_args} \
+                  -o ${filtered_bam} \
+                  ${filter_args} \
                   ${mapped_reads}
     """
 }
