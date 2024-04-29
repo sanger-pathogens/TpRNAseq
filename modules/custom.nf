@@ -23,3 +23,41 @@ process COMBINE_FASTQS {
     cat ${read_2_list.join(" ")} > ${combined_fastq_2}
     """
 }
+
+process COVERAGE_OVER_WINDOW {
+    label 'cpu_1'
+    label 'mem_1'
+    label 'time_30m'
+
+    publishDir "${params.outdir}/coverage/wig_${params.coverage_window_size}", mode: 'copy', overwrite: true
+
+    container 'ubuntu:22.04'
+
+    input:
+    tuple val(meta), path(wig), path(reference), path(ref_index)
+
+    output:
+    tuple val(meta), path(variable_step_wig),  emit: coverage_window_wig
+
+    script:
+    variable_step_wig = "${meta.ID}_${meta.filter}_${params.coverage_window_size}.wig"
+    //TODO Alternatively, put the chromosome name as a val arg to this process and put the awk script or the whole bash script in ./bin
+    //TODO As we have the ref index file available, we could take the chromosome name from that instead (to avoid the sed command below; simply cut/awk instead).
+    //TODO What if we were to use average (median) per-base coverage within the window, rather than total?
+    """
+    chrom=\$( head -n 1 ${reference} | sed -E 's/>(\\S+).*/\\1/' )
+    awk -v chrom="\${chrom}" -f- ${wig} > ${variable_step_wig} <<'AWK_SCRIPT'
+    BEGIN{
+        print "variableStep chrom=" chrom " span=${params.coverage_window_size}"
+        OFS="\t"
+    }
+    {
+        if (NR%${params.coverage_window_size}==0) {
+            print NR, sum+\$3; sum=0;
+        } else {
+            sum=sum+\$3
+        }
+    }
+    AWK_SCRIPT
+    """
+}

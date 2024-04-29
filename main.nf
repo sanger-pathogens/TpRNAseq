@@ -34,7 +34,8 @@ include {
     MULTIQC
 } from './modules/multiqc'
 include {
-    COMBINE_FASTQS
+    COMBINE_FASTQS;
+    COVERAGE_OVER_WINDOW
 } from './modules/custom'
 include {
     BEDTOOLS_GENOMECOV
@@ -249,6 +250,10 @@ workflow {
             .set { indexed_strand_specific_bams }
 
         BEDTOOLS_GENOMECOV(indexed_strand_specific_bams)
+        BEDTOOLS_GENOMECOV.out.genome_cov
+            .combine(ch_ref_index)
+            .set { genome_cov }
+        COVERAGE_OVER_WINDOW(genome_cov)
     }
 
     FILTER_BAM(
