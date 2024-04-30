@@ -35,7 +35,8 @@ include {
 } from './modules/multiqc'
 include {
     COMBINE_FASTQS;
-    COVERAGE_OVER_WINDOW
+    COVERAGE_OVER_WINDOW;
+    PLOT_ANNOTATION_COVERAGE
 } from './modules/custom'
 include {
     BEDTOOLS_GENOMECOV
@@ -218,6 +219,8 @@ workflow {
     ]).set { user_filter }
 
     if (params.strand_specific) {
+        Channel.fromPath(params.annotation, checkIfExists: true).set { annotation }
+
         Channel.value([
             "plus",
             "-f 3 -e '(flag.reverse && flag.read1) || (flag.mreverse && flag.read2)'"
@@ -254,6 +257,39 @@ workflow {
             .combine(ch_ref_index)
             .set { genome_cov }
         COVERAGE_OVER_WINDOW(genome_cov)
+
+        // TODO maybe branching would be better? Must be possible to tidy up!!
+        BEDTOOLS_GENOMECOV.out.genome_cov
+            .map { meta, wigs -> wigs }
+            .collect()
+            .set { all_genome_cov_wigs }
+        all_genome_cov_wigs
+            .map { wigs -> [wigs] }
+            .combine(annotation)
+            .set { wigs_and_annotation }
+        // Generate cartesian set of sample pairs
+        BEDTOOLS_GENOMECOV.out.genome_cov
+            .map { meta, wigs -> meta.ID }
+            .collect()
+            .map { sample_id_list -> sample_id_list.unique() }
+            .flatten()
+            .set { unique_sample_ids }
+
+        unique_sample_ids.set { unique_sample_ids_copy }
+        unique_sample_ids
+            .combine(unique_sample_ids_copy)
+            .filter { id_1, id_2 -> id_1 != id_2 }
+            .map { it -> it.sort() }
+            .unique()
+            .set { sample_id_pairs }
+
+        wigs_and_annotation
+            .combine(sample_id_pairs)
+            .set { plot_annotation_coverage_input }
+
+        PLOT_ANNOTATION_COVERAGE(
+            plot_annotation_coverage_input
+        )
     }
 
     FILTER_BAM(
