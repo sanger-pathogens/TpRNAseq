@@ -61,3 +61,30 @@ process COVERAGE_OVER_WINDOW {
     AWK_SCRIPT
     """
 }
+
+process PLOT_ANNOTATION_COVERAGE {
+    label 'cpu_1'
+    label 'mem_2'
+    label 'time_1'
+
+    publishDir "${params.outdir}/coverage/plots/", mode: 'copy', overwrite: true
+
+    container 'quay.io/sangerpathogens/python_graphics:1.0.0'
+
+    input:
+    tuple path(wig_files), path(gff), val(sample_1), val(sample_2)
+
+    output:
+    path("plots/*"),  emit: coverage_plots
+
+    script:
+    """
+    plot_annotation_coverage.py \
+        --sample_1 "${sample_1}" \
+        --sample_2 "${sample_2}" \
+        --wig_dir . \
+        --gff "${gff}" \
+        --ext 100 \
+        --outdir plots
+    """
+}
