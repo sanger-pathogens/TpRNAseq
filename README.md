@@ -54,11 +54,12 @@ Following mapping, the pipeline will mark and remove duplicates using Picard's [
 Manifests supplied as an argument to `--manifest`, should be of of the following format:
 
 ```console
-ID,R1,R2
-test_id,./test_data/inputs/test_1.fastq.gz,./test_data/inputs/test_2.fastq.gz
+ID,REP,R1,R2
+sample,1,./test_data/inputs/sample_rep1_1.fastq.gz,./test_data/inputs/sample_rep2_2.fastq.gz
+sample,2,./test_data/inputs/sample_rep2_1.fastq.gz,./test_data/inputs/sample_rep2_2.fastq.gz
 ```
 
-Where column `ID` can be an arbitrary sample identifier, `R1` is a .fastq.gz file of forward reads, `R2` is the mate .fastq.gz file containing reverse reads.
+Where column `ID` can be an arbitrary sample identifier, `REP` describes the replicate structure of the data, `R1` is a .fastq.gz file of forward reads, `R2` is the mate .fastq.gz file containing reverse reads. The above example shows entries for two replicates of one sample.
 
 ## Usage
 

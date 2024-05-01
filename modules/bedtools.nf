@@ -18,6 +18,6 @@ process BEDTOOLS_GENOMECOV {
 
     script:
     """
-    bedtools genomecov -ibam ${sorted_bam} -d -pc > ${meta.ID}_${meta.filter}.wig
+    bedtools genomecov -ibam ${sorted_bam} -d -pc > ${meta.ID}_REP${meta.REP}_${meta.filter}.wig
     """
 }

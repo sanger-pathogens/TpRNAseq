@@ -52,7 +52,7 @@ def load_data(name_id: str, data_dir: Path):
     """Load wig files, extract the coverage column, normalise the coverage, collect into dfs for plus and minus strand"""
     plus_data, minus_data = [], []
     #TODO We need to handle the summarization across replicates! Currently pipeline generates sample-specific data. Maybe we have to include the replicate structure in the manifest? That might make sense - rather than rely on file naming!
-    for i, f in enumerate(data_dir.glob(f"{name_id}_plus.wig")):
+    for i, f in enumerate(data_dir.glob(f"{name_id}*plus.wig")):
         # Extract coverage (and label replicate R1, R2, etc.)
         p_data = pd.read_csv(f, sep="\t", header=None, names=['c', 'p', f'R{i+1}'])[f'R{i+1}']
         #TODO fix potential bug if replacing plus with minus in full path (rather than just filename)!

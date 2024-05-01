@@ -11,7 +11,7 @@ workflow INPUT_CHECK {
         .fromPath( samplesheet )
         .ifEmpty {exit 1, "Cannot find path file ${samplesheet}"}
         .splitCsv ( header:true, sep:',' )
-        .map { create_fastq_channels(it) }
+        .map { parse_row(it) }
         .map { meta, reads -> [ meta, reads ] }
         .filter{ meta, reads -> reads != 'NA' }
         .filter{ meta, reads -> reads[0] != 'NA' || reads[1] != 'NA' }  // Single end not supported
@@ -28,9 +28,10 @@ workflow INPUT_CHECK {
 }
 
 // Function to get list of [ meta, [ fastq_1, fastq_2 ] ]
-def create_fastq_channels(LinkedHashMap row) {
+def parse_row(LinkedHashMap row) {
     def meta = [:]
     meta.ID = row.ID
+    meta.REP = row.REP
 
     def array = []
     // check short reads
@@ -46,8 +47,7 @@ def create_fastq_channels(LinkedHashMap row) {
         }
         fastq_2 = file(row.R2)
     } else { fastq_2 = 'NA' }
-    array = [ meta, [ fastq_1, fastq_2 ] ]
-    return array
+    return [ meta, [ fastq_1, fastq_2 ] ]
 }
 
 def validate_unique_sample_ids(samplesheet) {
