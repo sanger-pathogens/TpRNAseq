@@ -89,35 +89,3 @@ process COMBINE_HTSEQ {
     fi
     """
 }
-
-/*
-process COMBINE_HTSEQ_OLD {
-    label 'cpu_1'
-    label 'mem_1'
-    label 'time_1'
-
-    publishDir "${params.outdir}/htseq", mode: 'copy', overwrite: true, pattern: "*_counts.tsv"
-
-    input:
-    path(count_tables)
-
-    output:
-    path("${count_table}"),  emit: all_feature_counts
-
-    script:
-    counts_table = "gene_counts.tsv"
-    """
-    input_count_tables=(*.tsv)
-
-    # Print header
-    {
-        printf "feature_id\t";
-        printf "%s\t" "\${input_count_tables[@]}" | sed 's/\\t\$/\\n/';
-    } > ${counts_table}
-
-    # Print counts
-
-    awk '{print $2}' paste -s \$'\t'  >> ${counts_table}
-    """
-}
-*/
