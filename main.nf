@@ -141,8 +141,8 @@ workflow {
         ch_bt2_index 
     )
     SAMTOOLS_SORT(BOWTIE2.out.mapped_reads)
-
-    SAMTOOLS_INDEX_BAM(SAMTOOLS_SORT.out.sorted_reads)
+    | SAMTOOLS_INDEX_BAM
+    
     SAMTOOLS_INDEX_BAM.out.bam_index
         .set { ch_sorted_reads }
 
