@@ -10,7 +10,7 @@
 
 ## Pipeline summary
 
-In its simplest usage, **Tp RNAseq** takes a sample manifest, reference (fasta) and annotation (gff) as input. It first runs some basic QC using `fastp` on the `.fastq.gz` files provided in the sample manifest. This involves adaptor removal and trimming of poor quality bases from the ends of the reads. The pipeline will then map reads to the given reference genome using Bowtie2. In order to do this, bowtie2 index files are required. These will be created if necessary.
+In its simplest usage, **Tp RNAseq** takes a sample manifest (CSV; see [Generating a manifest](#generating-a-manifest)), reference (fasta) and annotation (gff) as input. It first runs some basic QC using `fastp` on the `.fastq.gz` files provided in the sample manifest. This involves adaptor removal and trimming of poor quality bases from the ends of the reads. The pipeline will then map reads to the given reference genome using Bowtie2. In order to do this, bowtie2 index files are required. These will be created if necessary.
 
 Following mapping, the pipeline will mark and remove duplicates using Picard's [MarkDuplicates](https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard). These deduplicated alignments will then be quantified per feature using HTSeq. For each sample, the pipeline outputs fastqc reports pre- and post-QC and a HTSeq count table. The count tables are combined across samples to generate a summary count table for convenient downstream analysis. It also allows the user to optionally output alignment files (bam) pre- and post-deduplication. Reports are summarized using [multiQC](https://multiqc.info/).
 
