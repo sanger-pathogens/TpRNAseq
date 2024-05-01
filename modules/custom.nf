@@ -72,16 +72,24 @@ process PLOT_ANNOTATION_COVERAGE {
     container 'quay.io/sangerpathogens/python_graphics:1.0.0'
 
     input:
-    tuple path(wig_files), path(gff), val(sample_1), val(sample_2)
+    tuple path(wig_files), path(gff), val(sample_ids)
 
     output:
     path("plots/*"),  emit: coverage_plots
 
     script:
+    num_samples = sample_ids.size()
+    //TODO corresponding switch statement doesn't seem to work here!
+    if (num_samples == 1) {
+        sample_args = "--sample_1 \"${sample_ids[0]}\""
+    } else if (num_samples == 2) {
+        sample_args = "--sample_1 \"${sample_ids[0]}\" --sample_2 \"${sample_ids[1]}\""
+    } else {
+        exit 1, "Unexpected number of sample_ids: ${num_samples}"
+    }
     """
     plot_annotation_coverage.py \
-        --sample_1 "${sample_1}" \
-        --sample_2 "${sample_2}" \
+        ${sample_args} \
         --wig_dir . \
         --gff "${gff}" \
         --ext 100 \

@@ -195,7 +195,7 @@ workflow {
     // MAPPING: Bowtie2
     BOWTIE2 (
         ch_trimmed_reads,
-        ch_bt2_index 
+        ch_bt2_index
     )
     SAMTOOLS_SORT(BOWTIE2.out.mapped_reads)
     | SAMTOOLS_INDEX_BAM
@@ -246,7 +246,7 @@ workflow {
 
         ch_filtered_minus_reads.mix(ch_filtered_plus_reads)
             .set { strand_specific_bams }
-    
+
         //TODO Wouldn't have to alias this if we put the strand-specific stuff in it's own subworkflow!
         SAMTOOLS_INDEX_STRAND_SPECIFIC_BAM(strand_specific_bams)
         SAMTOOLS_INDEX_STRAND_SPECIFIC_BAM.out.bam_index
@@ -267,7 +267,7 @@ workflow {
             .map { wigs -> [wigs] }
             .combine(annotation)
             .set { wigs_and_annotation }
-        // Generate cartesian set of sample pairs
+
         BEDTOOLS_GENOMECOV.out.genome_cov
             .map { meta, wigs -> meta.ID }
             .collect()
@@ -275,16 +275,23 @@ workflow {
             .flatten()
             .set { unique_sample_ids }
 
-        unique_sample_ids.set { unique_sample_ids_copy }
-        unique_sample_ids
-            .combine(unique_sample_ids_copy)
-            .filter { id_1, id_2 -> id_1 != id_2 }
-            .map { it -> it.sort() }
-            .unique()
-            .set { sample_id_pairs }
+        if (params.pairwise) {
+            // Generate cartesian set of sample pairs
+            unique_sample_ids.set { unique_sample_ids_copy }
+            unique_sample_ids
+                .combine(unique_sample_ids_copy)
+                .filter { id_1, id_2 -> id_1 != id_2 }
+                .map { it -> it.sort() }
+                .unique()
+                .set { sample_ids_to_plot }
+        } else {
+            unique_sample_ids
+                .map { it -> [[it]] }  //TODO Why do we have to double list like this?
+                .set { sample_ids_to_plot }
+        }
 
         wigs_and_annotation
-            .combine(sample_id_pairs)
+            .combine(sample_ids_to_plot)
             .set { plot_annotation_coverage_input }
 
         PLOT_ANNOTATION_COVERAGE(
@@ -298,7 +305,7 @@ workflow {
     )
     FILTER_BAM.out.filtered_bam
         .set { ch_filtered_reads }
-    
+
     // COUNTING
     HTSEQ_COUNT(ch_filtered_reads)
     HTSEQ_COUNT.out.sample_feature_counts
