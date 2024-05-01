@@ -47,6 +47,8 @@ Following mapping, the pipeline will mark and remove duplicates using Picard's [
    rm -rf work .nextflow*
    ```
 
+   Alternatively, use [`nextflow clean`](https://www.nextflow.io/docs/latest/cli.html#clean), which allows selective removal of these files.
+
 ## Generating a manifest
 
 Manifests supplied as an argument to `--manifest`, should be of of the following format:
