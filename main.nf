@@ -47,6 +47,40 @@ if (params.help) {
 ========================================================================================
 */
 
+def validate_parameters() {
+    def errors = 0
+
+    errors += validate_path_param("--manifest", params.manifest)
+    errors += validate_path_param("--reference", params.reference)
+    errors += validate_path_param("--annotation", params.annotation)
+    errors += validate_choice_param("--library_strandedness", params.library_strandedness, ["reverse", "forward", "none"])
+    errors += validate_choice_param("--trimmer", params.library_strandedness, ["fastp"])
+    // fastp_args = ""  // TODO implement more complex validation checking if illegal args are used in the string!
+    // dedup = false  // TODO implement bool arg validation
+    // combine_fastqs = false
+    // combine_rep = false
+    // publish_combined_fastqs = false
+    // bowtie2_args = "--local --very-sensitive-local --rdg 8,4 --rfg 8,4 --no-mixed"
+    // samtools_filter_args = "-f 2"
+    // htseq_args = "--type gene --idattr locus_tag --nonunique none --secondary-alignments ignore"
+    // annotate_feature_assignment = false
+    // strand_specific = false
+    errors += validate_path_param("--coverage_window_size", params.coverage_window_size) // TODO Should really be +ve integer validation
+    // pairwise = false
+    // keep_dedup_bam = false
+    // keep_sorted_bam = false
+    // keep_filtered_bam = false
+    errors += validate_path_param("--multiqc_config", params.multiqc_config)
+    // monochrome_logs = false
+    // nf_core_custom_config_base = "https://raw.githubusercontent.com/nf-core/configs/${params.custom_config_version}"  // Could be a path or URL really
+    
+    if (errors > 0) {
+        log.error(String.format("%d errors detected", errors))
+        exit 1
+    }
+}
+
+validate_parameters()
 
 /*
 ========================================================================================
