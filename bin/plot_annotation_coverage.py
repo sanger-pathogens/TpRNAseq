@@ -25,6 +25,7 @@ def parse_args():
     parser.add_argument('--gff', '-g', dest="gff", help="Genome annotation in GFF3 format", type=Path)
     parser.add_argument('--wig_dir', '-d', dest="wig_dir", help="Path to directory containing .wig coverage files", type=Path)
     parser.add_argument('--ext', '-e', dest="ext", help="Number of bases by which to extend coverage plot either side of an annotated gene", type=int, default=100)
+    parser.add_argument('--min_intergenic', '-i', dest="min_intergenic", help="Minimum number of bases for an intergenic region to be annotated", type=int, default=10)
     parser.add_argument('--outdir', '-o', dest="outdir", help="Path to an output directory in which to save the coverage plots", type=Path, default="./plots")
     return parser.parse_args()
 
@@ -72,18 +73,17 @@ def get_gene_annotations(gff: Path) -> pd.DataFrame:
     ann_base.columns = ["start", "end", "strand", "tags"]
     return ann_base
 
-def add_intergenic_region_annotations(ann_base: pd.DataFrame) -> list:
+def add_intergenic_region_annotations(ann_base: pd.DataFrame, min_length: int = 10) -> list:
     IG_idx = 1
     ann = []
     # num_genes_in_gff = range(len(ann_base))
     for idx in range(len(ann_base)):
         name = get_gene_name(ann_base.iloc[idx])
         prev_name = get_gene_name(ann_base.iloc[idx-1])
-        # If previous "gene" entry in GFF ends more than 10 bases before the current entry start
-        # I'm guessing 10 is chosen because of uncertainty about 5' UTR region of gene.
-        # In any case, this would also filter out overlapping genes? Rare in bacteria, and presumably this would complicate count comparison/inference...)
+        # If previous "gene" entry in GFF ends more than min_length bases before the current entry start
+        # Determines the minimum length of integergenic region to be annotated
         # TODO Has the first IG region been accounted for in this code?
-        if ann_base.iloc[idx-1]["end"] < ann_base.iloc[idx]["start"] - 10:
+        if ann_base.iloc[idx-1]["end"] < ann_base.iloc[idx]["start"] - min_length:
             # Then add an intergenic annotation
             ann.append([
                 f"IG_{IG_idx}",  # locus id
@@ -299,7 +299,7 @@ def main():
 
     # Parse GFF
     ann_base = get_gene_annotations(args.gff)
-    ann = add_intergenic_region_annotations(ann_base)
+    ann = add_intergenic_region_annotations(ann_base, args.min_intergenic)
 
     # Loop over genes and plot
     gene_with_neighbours = generate_gene_with_neighbours(ann)
