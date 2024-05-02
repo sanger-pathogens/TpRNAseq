@@ -6,7 +6,9 @@
 
 ## Introduction
 
-**Tp RNAseq** is a pipeline for quantifying RNAseq reads that map to features of a bacterial genome using [Bowtie2](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml) and [HTSeq](https://htseq.readthedocs.io). It has been adapted for use with *Treponema pallidum*, but could also in prinicple be used to analyse data for other bacterial species.
+**Tp RNAseq** is a pipeline for quantifying RNAseq reads that map to features of a bacterial genome using [Bowtie2](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml) and [HTSeq](https://htseq.readthedocs.io). It has been adapted for use with *Treponema pallidum*, but could also in principle be used to analyse data for other bacterial species.
+
+The pipeline can be run on local machines and high-performance computing (HPC) clusters with minimal setup.
 
 ## Pipeline summary
 
@@ -14,40 +16,112 @@ In its simplest usage, **Tp RNAseq** takes a sample manifest (CSV; see [Generati
 
 Following mapping, the pipeline will mark and remove duplicates using Picard's [MarkDuplicates](https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard). These deduplicated alignments will then be quantified per feature using HTSeq. For each sample, the pipeline outputs fastqc reports pre- and post-QC and a HTSeq count table. The count tables are combined across samples to generate a summary count table for convenient downstream analysis. It also allows the user to optionally output alignment files (bam) pre- and post-deduplication. Reports are summarized using [multiQC](https://multiqc.info/).
 
+## Requirements
+
+### Software
+
+- A Unix-like operating system environment (e.g. Linux, macOS, Windows with [WSL](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux)) with Bash 3.2 or later.
+- Java 11 or later ([OpenJDK](https://openjdk.org/)) as a nextflow dependency
+- [nextflow](https://www.nextflow.io/) as workflow management system
+- [Docker](https://www.docker.com/), [Singularity](https://sylabs.io/singularity/)/[Apptainer](https://apptainer.org/), or [conda]() for pipeline dependency management
+
+### Hardware (recommended)
+
+- \>= 16GB RAM
+- \>= 2 CPUs/cores
+- Enough space for images (< 10GB) and intermediate data
+
+## Dependency Installation
+- **Linux / macOS**
+    - Install [Java and Nextflow](https://www.nextflow.io/docs/latest/install.html)
+    - Install any of:
+        - [Docker Desktop](https://docs.docker.com/desktop/install) (recommended)
+        - [Docker Engine](https://docs.docker.com/engine/install)
+        - [Singularity](https://docs.sylabs.io/guides/latest/user-guide/quick_start.html)
+        - [Apptainer](https://apptainer.org/)
+        - [miniconda3](https://docs.anaconda.com/free/miniconda/)
+
+- **Windows (with WSL)**
+    - Install [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) by Microsoft
+    - Install [Java and Nextflow](https://www.nextflow.io/docs/latest/install.html)
+    - Install any of:
+        - [Docker Desktop with WSL integration](https://docs.docker.com/desktop/wsl/)
+        - [miniconda3](https://docs.anaconda.com/free/miniconda/)
+
+- Troubleshooting:
+    - After installation of Java, you may need to `export JAVA_ARG=$(which java)` to ensure successful nextflow installation.
+    - Docker will usually require administrator privileges, so you may have to seek approval if using a managed machine (better to use `conda` in this case).
+    - After installation of Docker Desktop on macOS, you might need to [allow Docker to access more system resources](https://docs.docker.com/desktop/settings/mac/), especially CPU and Memory, to match pipeline hardware requirements.
+
 ## Getting started
+
+### Running on a personal computer
+
+1.  [Install the necessary dependencies](#dependency-installation)
+
+2.  Open a terminal.
+
+3.  Run the pipeline:  
+    For example input, please see [Generating a manifest](#generating-a-manifest).
+    
+    To run the pipeline with `docker`, use the `-profile docker` option:
+    ```
+    nextflow run sanger-pathogens/TpRNAseq \
+        -profile docker \
+        --manifest test_data/manifest.csv \
+        --reference test_data/ref.fasta \
+        --annotation test_data/ref.gff \
+        --library_strandedness reverse
+    ```
+
+    Other profiles are also supported (`docker`, `conda`, `singularity`, `apptainer`).  
+    :warning: If no profile is specified the pipeline will run with a Sanger HPC-specific configuration.
+
+    See [usage](#usage) for all available pipeline options.
 
 ### Running on the farm (Sanger HPC clusters)
 
-1. Load nextflow and singularity modules:
-   ```bash
-   module load nextflow ISG/singularity
-   ```
+1.  Load nextflow and singularity modules:
+    ```bash
+    module load nextflow ISG/singularity
+    ```
 
-2. Clone the repo and change directory into it.
+2.  Clone the repo and change directory into it.
 
-3. Start the pipeline:
-   For example input, please see [Generating a manifest](#generating-a-manifest).
+3.  Start the pipeline:  
+    For example input, please see [Generating a manifest](#generating-a-manifest).
 
-   Example:
-   ```bash
-   nextflow run main.nf --manifest test_data/manifest.csv --reference test_data/ref.fasta --annotation test_data/ref.gff --library_strandedness reverse
-   ```
+    Example:
+    ```bash
+    nextflow run main.nf --manifest test_data/manifest.csv --reference test_data/ref.fasta --annotation test_data/ref.gff --library_strandedness reverse
+    ```
 
-   It is good practice to submit a dedicated job for the nextflow master process (use the `oversubscribed` queue):
-   ```bash
-   bsub -o output.o -e error.e -q oversubscribed -R "select[mem>4000] rusage[mem=4000]" -M4000 \
-      nextflow run main.nf --manifest test_data/manifest.csv --reference test_data/ref.fasta --annotation test_data/ref.gff --library_strandedness reverse
-   ```
+    It is good practice to submit a dedicated job for the nextflow master process (use the `oversubscribed` queue):
+    ```bash
+    bsub -o output.o -e error.e -q oversubscribed -R "select[mem>4000] rusage[mem=4000]" -M4000 \
+        nextflow run main.nf --manifest test_data/manifest.csv --reference test_data/ref.fasta --annotation test_data/ref.gff --library_strandedness reverse
+    ```
 
-   See [usage](#usage) for all available pipeline options.
+    See [usage](#usage) for all available pipeline options.
 
-4. Once your run has finished, check output in the directory supplied to the `--outdir` option (default `./results`). Remember to clean up any intermediate files. To do this (assuming no other pipelines are running from the current working directory) run:
+4.  Once your run has finished, check output in the directory supplied to the `--outdir` option (default `./results`). Remember to clean up any intermediate files. To do this (assuming no other pipelines are running from the current working directory) run:
 
-   ```bash
-   rm -rf work .nextflow*
-   ```
+    ```bash
+    rm -rf work .nextflow*
+    ```
 
-   Alternatively, use [`nextflow clean`](https://www.nextflow.io/docs/latest/cli.html#clean), which allows selective removal of these files.
+    Alternatively, use [`nextflow clean`](https://www.nextflow.io/docs/latest/cli.html#clean), which allows selective removal of these files.
+
+### Running on any other HPC cluster
+
+This pipeline should be compatible with most HPC clusters, but will not have the necessary configuration files for those clusters hosted in this repository.
+
+Nevertheless, your insitution may support an [nf-core configuration profile](https://github.com/nf-core/configs/tree/master/conf). Documentation for the use of these profiles can be found [here](https://github.com/nf-core/configs?tab=readme-ov-file#documentation).
+
+These profiles are supported out-of-the-box by this pipeline. You simply have to run the pipeline with the relevant profile. For example, to run the pipeline on the Cambridge HPC, run with `-profile cambridge`.
+
+:warning: If no profile is specified the pipeline will run with a Sanger HPC-specific configuration. 
+
 
 ## Generating a manifest
 
@@ -156,12 +230,16 @@ The default will only keep reads that aligned in proper pairs.
 
 ## Credits
 
-**Tp RNAseq** was produced by PAM informatics at the Wellcome Sanger Institute.
+**Tp RNAseq** was produced by PAM informatics at the Wellcome Sanger Institute, in collaboration with Linda Grillova and Eli Carrami. Inspiration was taken, in places, from the [nf-core pipelines](https://nf-co.re/pipelines).
 
 ## Support
 
 If you require any help running this pipeline, experience a bug, or would like to request a new feature, please post an issue.
 
 ## Citations
+
+This pipeline was developed to support the work of the following publications. If you use this pipeline in your work, please cite as appropriate:
+
+<TODO - List of citations>
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
