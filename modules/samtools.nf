@@ -1,4 +1,5 @@
 process FILTER_BAM {
+    tag "${meta.ID} : REP${meta.REP} - ${filter_name}"
     label 'cpu_2'
     label 'mem_100M'
     label 'time_1'
@@ -15,10 +16,10 @@ process FILTER_BAM {
     tuple val(new_meta), path("${filtered_bam}"),  emit: filtered_bam
 
     script:
-    filtered_bam = "${meta.ID}.bam"
+    filtered_bam = "${meta.ID}_REP${meta.REP}.bam"
     new_meta = meta.clone()
     new_meta.filter = filter_name
-    //TODO Should we only modify meta, or should we also update the filename to include the filter name. This could result in [sample_id_user.bam, sample_id_plus.bam, sample_id_minus.bam]
+    //TODO Should we only modify meta, or should we also update the filename to include the filter name. This could result in [sample_id_REP1_user.bam, sample_id_REP1_plus.bam, sample_id_REP1_minus.bam]
     """
     samtools view -@ ${task.cpus} \
                   -b \
@@ -30,6 +31,7 @@ process FILTER_BAM {
 }
 
 process SAMTOOLS_SORT {
+    tag "${meta.ID} : REP${meta.REP}"
     label 'cpu_4'
     label 'mem_4'
     label 'time_12'
@@ -45,7 +47,7 @@ process SAMTOOLS_SORT {
     tuple val(meta), path("${sorted_reads}"),  emit: sorted_reads
 
     script:
-    sorted_reads = "${meta.ID}_sorted.bam"
+    sorted_reads = "${meta.ID}_REP${meta.REP}_sorted.bam"
     """
     samtools sort -@ ${task.cpus} \
                   -o ${sorted_reads} \

@@ -1,5 +1,5 @@
 process BOWTIE2 {
-    tag "${meta.ID}"
+    tag "${meta.ID} : REP${meta.REP}"
     label 'cpu_4'
     label 'mem_2'
     label 'time_12'

@@ -1,5 +1,5 @@
 process FASTQC {
-    tag "${meta.ID}"
+    tag "${meta.ID} : REP${meta.REP}"
     label 'cpu_2'
     label 'mem_2'
     label 'time_12'

@@ -1,5 +1,5 @@
 process BEDTOOLS_GENOMECOV {
-    tag "${meta.ID}"
+    tag "${meta.ID} : REP${meta.REP} - ${meta.filter}"
     label 'cpu_1'
     label 'mem_1'  //TODO Uses about 3MB of memory. Is it even worth submitting to LSF?
     label 'time_30m'

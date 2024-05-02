@@ -1,5 +1,5 @@
 process PICARD_MARKDUP {
-    tag "${meta.ID}"
+    tag "${meta.ID} : REP${meta.REP}"
     label 'cpu_1'
     label 'mem_2'
     label 'time_12'
@@ -12,19 +12,21 @@ process PICARD_MARKDUP {
     tuple val(meta), path(sorted_reads), path(sorted_reads_index)
 
     output:
-    tuple val(meta), path("${dedup_reads}"),  emit: dedup_reads
+    tuple val(meta), path(dedup_reads),  emit: dedup_reads
 
     script:
-    dedup_reads = "${meta.ID}_dedup.bam"
-    metrics_file = "${meta.ID}_dedup_metrics.txt"
+    output_stem = "${meta.ID}_REP${meta.REP}"
+    dedup_reads = "${output_stem}_dedup.bam"
+    metrics_file = "${output_stem}_dedup_metrics.txt"
     //TODO We could perhaps use mkfifo to avoid the intermediate *fixed.bam file?
+    //TODO publish metrics file?
     """
     picard FixMateInformation \
         -I ${sorted_reads} \
-        -O ${meta.ID}.fixed.bam
+        -O tmp.fixed.bam
 
     picard MarkDuplicates \
-        -I ${meta.ID}.fixed.bam \
+        -I tmp.fixed.bam \
         -O ${dedup_reads} \
         -M ${metrics_file} \
         --REMOVE_DUPLICATES \

@@ -1,4 +1,5 @@
 process COMBINE_FASTQS {
+    tag "${meta.ID}"
     label 'cpu_1'
     label 'mem_1'
     label 'time_30m'
@@ -15,8 +16,8 @@ process COMBINE_FASTQS {
     tuple val(meta), path(combined_fastqs),  emit: combined_reads
 
     script:
-    combined_fastq_1 = "${meta.ID}_1.fastq.gz"
-    combined_fastq_2 = "${meta.ID}_2.fastq.gz"
+    combined_fastq_1 = "${meta.ID}_REP${meta.REP}_1.fastq.gz"
+    combined_fastq_2 = "${meta.ID}_REP${meta.REP}_2.fastq.gz"
     combined_fastqs = [combined_fastq_1, combined_fastq_2]
     """
     cat ${read_1_list.join(" ")} > ${combined_fastq_1}
@@ -25,6 +26,7 @@ process COMBINE_FASTQS {
 }
 
 process COVERAGE_OVER_WINDOW {
+    tag "${meta.ID} : REP${meta.REP} - ${filter_name}"
     label 'cpu_1'
     label 'mem_1'
     label 'time_30m'
@@ -40,7 +42,7 @@ process COVERAGE_OVER_WINDOW {
     tuple val(meta), path(variable_step_wig),  emit: coverage_window_wig
 
     script:
-    variable_step_wig = "${meta.ID}_${meta.filter}_${params.coverage_window_size}.wig"
+    variable_step_wig = "${meta.ID}_REP${meta.REP}_${meta.filter}_${params.coverage_window_size}.wig"
     //TODO Alternatively, put the chromosome name as a val arg to this process and put the awk script or the whole bash script in ./bin
     //TODO As we have the ref index file available, we could take the chromosome name from that instead (to avoid the sed command below; simply cut/awk instead).
     //TODO What if we were to use average (median) per-base coverage within the window, rather than total?
@@ -63,6 +65,7 @@ process COVERAGE_OVER_WINDOW {
 }
 
 process PLOT_ANNOTATION_COVERAGE {
+    tag "${sample_ids.join(", ")}"
     label 'cpu_1'
     label 'mem_2'
     label 'time_1'

@@ -1,5 +1,5 @@
 process HTSEQ_COUNT {
-    tag "${meta.ID}"
+    tag "${meta.ID} : REP${meta.REP}"
     label 'cpu_1'
     label 'mem_100M'
     label 'time_1'
@@ -17,8 +17,9 @@ process HTSEQ_COUNT {
     tuple val(meta), path("${annotated_bam}"), optional: true,  emit: annotated_bam
 
     script:
-    count_table = "${meta.ID}_counts.tsv"
-    annotated_bam = "${meta.ID}_annotated.bam"
+    output_stem = "${meta.ID}_REP${meta.REP}"
+    count_table = "${output_stem}_counts.tsv"
+    annotated_bam = "${output_stem}_annotated.bam"
 
     assignment_annotation_args = ""
     if (params.annotate_feature_assignment) {

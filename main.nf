@@ -123,8 +123,14 @@ workflow {
 
     // COMBINE FASTQS BY SAMPLE
     if (params.combine_fastqs) {
+        if (params.combine_rep) {
+            attrs_to_join = ["ID"]
+        } else {
+            attrs_to_join = ["ID", "REP"]
+        }
+
         ch_reads
-            .map { meta, reads -> [meta.ID, meta, reads] }
+            .map { meta, reads -> [ attrs_to_join.collect{ meta[it] }.join("_"), meta, reads] }
             .groupTuple()
             .map { meta_id, meta_list, read_pairs_list ->
                 def read_lists = collate_read_pairs(read_pairs_list)
