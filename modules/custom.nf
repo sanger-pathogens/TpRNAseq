@@ -4,7 +4,7 @@ process COMBINE_FASTQS {
     label 'mem_1'
     label 'time_30m'
 
-    publishDir "${params.outdir}/combined_fastqs", enabled: params.publish_combined_fastqs, mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/combined_fastqs", enabled: params.keep_combined_fastqs, mode: 'copy', overwrite: true
 
     container 'ubuntu:22.04'
 
