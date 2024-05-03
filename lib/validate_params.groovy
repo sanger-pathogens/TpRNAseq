@@ -39,11 +39,20 @@ def validate_choice_param(param_option, param, choices) {
     return 0
 }
 
-def validate_number_param(param_option, param) {
+def validate_bool_param(param_option, param) {
+    param_name = (param_option - "--").replaceAll("_", " ")
+    if (![true, false].contains(param)) {
+        log.error("${param_option} is a binary flag which can be set to only true or false")
+        return 1
+    }
+    return 0
+}
+
+def validate_class_param(param_option, param, param_class) {
     param_name = (param_option - "--").replaceAll("_", " ")
     if (param != null) /* Explicit comparison with null, because 0 is an acceptable value */ {
-        if (!(param instanceof Number)) {
-            log.error("The ${param_name} specified with the ${param_option} option must be a valid number")
+        if (!(param instanceof param_class)) {
+            log.error("The ${param_name} specified with the ${param_option} option must be a valid ${param_class}")
             return 1
         }
     } else {
@@ -53,5 +62,18 @@ def validate_number_param(param_option, param) {
     return 0
 }
 
-//TODO implement bool arg validation - in case someone passes a string to a bool arg
-//TODO implement integer arg validation as specialization of number validation
+def validate_number_param(param_option, param) {
+    param_name = (param_option - "--").replaceAll("_", " ")
+    validate_class_param(param_option, param, Number)
+    return 0
+}
+
+def validate_positive_integer_param(param_option, param) {
+    param_name = (param_option - "--").replaceAll("_", " ")
+    validate_class_param(param_option, param, Integer)
+    if (!(param > 0)) {
+        log.error("The ${param_name} specified with the ${param_option} option must be a positive integer")
+        return 1
+    }
+    return 0
+}
