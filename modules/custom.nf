@@ -70,7 +70,7 @@ process PLOT_ANNOTATION_COVERAGE {
     label 'mem_2'
     label 'time_1'
 
-    publishDir "${params.outdir}/coverage/plots/", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/coverage/", mode: 'copy', overwrite: true
 
     container 'quay.io/sangerpathogens/python_graphics:1.0.0'
 
@@ -95,7 +95,7 @@ process PLOT_ANNOTATION_COVERAGE {
         ${sample_args} \
         --wig_dir . \
         --gff "${gff}" \
-        --ext 100 \
+        --ext ${params.coverage_context} \
         --outdir plots
     """
 }
