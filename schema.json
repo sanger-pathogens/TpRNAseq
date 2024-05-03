@@ -5,68 +5,111 @@
         "Input": {
             "manifest": {
                 "default": "none",
-                "help_text": "Path to a CSV manifest comprising 3 columns (sample_id, R1, R2). R1 and R2 columns contain paths to *.fastq.gz files."
+                "help_text": ["Path to a CSV manifest comprising 4 columns (ID, REP, R1, R2). ID is an arbitrary sample ID, REP describes replicate structure, R1 and R2 columns contain paths to *.fastq.gz files."]
             },
             "reference": {
                 "default": "none",
-                "help_text": "Path to reference genome in FASTA format."
+                "help_text": ["Path to reference genome in FASTA format."]
             },
             "annotation": {
                 "default": "none",
-                "help_text": "Path to genome annotation in GFF format."
+                "help_text": ["Path to genome annotation in GFF format."]
             },
             "library_strandedness": {
                 "default": "reverse",
-                "help_text": "Strandedness of the RNAseq library."
+                "help_text": ["Strandedness of the RNAseq library. Options: reverse, forward, none."]
+            }
+        },
+        "Output": {
+            "outdir": {
+                "default": "./results",
+                "help_text": ["Path to an output directory (created if it doesn't exist)."]
+            },
+            "keep_combined_fastqs": {
+                "default": "false",
+                "help_text": ["If true, publish the combined fastqs."]
+            },
+            "keep_sorted_bam": {
+                "default": "false",
+                "help_text": ["If true, keep the sorted bam file generated from mapping."]
+            },
+            "keep_dedup_bam": {
+                "default": "false",
+                "help_text": ["If true, keep the deduplicated bam file."]
+            },
+            "keep_filtered_bam": {
+                "default": "false",
+                "help_text": ["If true, keep filtered bam file."]
+            }
+        },
+        "Data Combining": {
+            "combine_fastqs": {
+                "default": "false",
+                "help_text": ["If true, combine fastqs at replicate level, based on sample identifiers provided in the manifest."]
+            },
+            "combine_rep": {
+                "default": "false",
+                "help_text": ["If true, combine fastqs at the sample level, based on the replicate structure described in the manifest."]
             }
         },
         "QC": {
             "trimmer": {
                 "default": "fastp",
-                "help_text": "Software to use for trimming. Options: fastp."
+                "help_text": ["Software to use for trimming. Options: fastp."]
             },
             "fastp_args": {
                 "default": "none",
-                "help_text": "Options and arguments that will be supplied to fastp to modify QC behaviour."
+                "help_text": ["Options and arguments that will be supplied to fastp to modify QC behaviour."]
             },
             "multiqc_config": {
                 "default": "none",
-                "help_text": "A multiqc configuration file (yml) that can be used to customise the multiqc behaviour. See https://multiqc.info/docs/getting_started/config/."
+                "help_text": [
+                    "A multiqc configuration file (yml) that can be used to customise the multiqc behaviour.",
+                    "See https://multiqc.info/docs/getting_started/config/."
+                ]
             }
         },
         "Mapping": {
             "bowtie2_args": {
                 "default": "--local --very-sensitive-local --rdg 8,4 --rfg 8,4 --no-mixed",
-                "help_text": "Options and arguments that will be supplied to Bowtie2 to modify mapping behaviour."
+                "help_text": ["Options and arguments that will be supplied to Bowtie2 to modify mapping behaviour."]
             },
             "dedup": {
                 "default": "false",
-                "help_text": "If true, deduplicate bam file."
-            },
-            "keep_sorted_bam": {
-                "default": "false",
-                "help_text": "If true, keep the sorted bam file generated from mapping."
-            },
-            "keep_dedup_bam": {
-                "default": "false",
-                "help_text": "If true, keep the deduplicated bam file."
+                "help_text": ["If true, remove duplicates (hopefully library prep artifacts) from bam file."]
             }
-
         },
         "Counting": {
             "htseq_args": {
                 "default": "--type gene --idattr locus_tag --nonunique none --secondary-alignments ignore",
-                "help_text": "Options and arguments that will be supplied to htseq-count to modify counting behaviour."
+                "help_text": ["Options and arguments that will be supplied to htseq-count to modify counting behaviour."]
             },
             "samtools_filter_args": {
                 "default": "-f 2",
-                "help_text": "Arguments supplied to samtools to will be used to filter alignments of interest for counting. Acceptable arguments: -f or -F.\nThe default will only keep reads that aligned in proper pairs."
+                "help_text": [
+                    "Arguments supplied to samtools to will be used to filter alignments of interest for counting. Acceptable arguments: -f or -F.",
+                    "The default will only keep reads that aligned in proper pairs."
+                ]
+            }
+        },
+        "Coverage": {
+            "strand_specific": {
+                "default": "false",
+                "help_text": ["If true, run strand-specific coverage analysis."]
+            },
+            "coverage_window_size": {
+                "default": "100",
+                "help_text": ["Provide context around the annotated region (coverage_window_size base pairs either side) in the coverage plot."]
+            },
+            "pairwise": {
+                "default": "false",
+                "help_text": ["If true, generate pairwise sample comparison coverage plots."]
             }
         },
         "Logging": {
             "monochrome_logs": {
                 "default": "false",
-                "help_text": "Should logs appear in plain (non-coloured) ASCII"
+                "help_text": ["Should logs appear in plain (non-coloured) ASCII"]
             }
         }
     }

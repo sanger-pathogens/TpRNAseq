@@ -50,7 +50,9 @@ class NextflowTool {
                     log.info indent
                 } else {
                     log.info indent + "--" + it.key
-                    log.info indent + indent + it.value.help_text
+                    it.value.help_text.each { line ->
+                        log.info indent + indent + line
+                    }
                     log.info indent + indent + "Default: " + it.value.default
                 }
             }
