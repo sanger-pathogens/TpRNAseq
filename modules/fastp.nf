@@ -4,8 +4,8 @@ process FASTP {
     label 'mem_4'
     label 'time_12'
 
-    //TODO we currently don't publish any trimmed reads from the pipeline, or the HTML JSON reports (we rely on fastqc instead).
-    // Is this ok? We could always provide an option to publish if user is interested!
+    publishDir "${params.outdir}/fastp/trimmed_fastqs", enabled: params.keep_trimmed_fastqs, mode: 'copy', overwrite: true, pattern: "*.fastq.gz"
+    publishDir "${params.outdir}/fastp/reports", mode: 'copy', overwrite: true, pattern: "*.{html,json}"
 
     container 'quay.io/biocontainers/fastp:0.23.4--hadf994f_2'
 
@@ -14,6 +14,7 @@ process FASTP {
 
     output:
     tuple val(meta), path("${trimmed_reads_stem}*.fastq.gz"),  emit: trimmed_reads
+    tuple val(meta), path("*{html,json}"),  emit: fastp_reports
 
     script:
     trimmed_reads_stem = "${meta.ID}_REP${meta.REP}_trimmed"
