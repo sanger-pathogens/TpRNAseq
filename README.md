@@ -171,7 +171,7 @@ Where column `ID` can be an arbitrary sample identifier, `REP` describes the rep
 ---------------------------------------------------------------------------------------
  Input 
       --manifest
-            Path to a CSV manifest comprising 3 columns (sample_id, R1, R2). R1 and R2 columns contain paths to *.fastq.gz files.
+            Path to a CSV manifest comprising 4 columns (ID, REP, R1, R2). ID is an arbitrary sample ID, REP describes replicate structure, R1 and R2 columns contain paths to *.fastq.gz files.
             Default: none
       --reference
             Path to reference genome in FASTA format.
@@ -180,8 +180,35 @@ Where column `ID` can be an arbitrary sample identifier, `REP` describes the rep
             Path to genome annotation in GFF format.
             Default: none
       --library_strandedness
-            Strandedness of the RNAseq library.
+            Strandedness of the RNAseq library. Options: reverse, forward, none.
             Default: reverse
+---------------------------------------------------------------------------------------
+
+ Output 
+      --outdir
+            Path to an output directory (created if it doesn't exist).
+            Default: ./results
+      --keep_combined_fastqs
+            If true, publish the combined fastqs.
+            Default: false
+      --keep_sorted_bam
+            If true, keep the sorted bam file generated from mapping.
+            Default: false
+      --keep_dedup_bam
+            If true, keep the deduplicated bam file.
+            Default: false
+      --keep_filtered_bam
+            If true, keep filtered bam file.
+            Default: false
+---------------------------------------------------------------------------------------
+
+ Data Combining 
+      --combine_fastqs
+            If true, combine fastqs at replicate level, based on sample identifiers provided in the manifest.
+            Default: false
+      --combine_rep
+            If true, combine fastqs at the sample level, based on the replicate structure described in the manifest.
+            Default: false
 ---------------------------------------------------------------------------------------
 
  QC 
@@ -192,7 +219,8 @@ Where column `ID` can be an arbitrary sample identifier, `REP` describes the rep
             Options and arguments that will be supplied to fastp to modify QC behaviour.
             Default: none
       --multiqc_config
-            A multiqc configuration file (yml) that can be used to customise the multiqc behaviour. See https://multiqc.info/docs/getting_started/config/.
+            A multiqc configuration file (yml) that can be used to customise the multiqc behaviour.
+            See https://multiqc.info/docs/getting_started/config/.
             Default: none
 ---------------------------------------------------------------------------------------
 
@@ -201,13 +229,7 @@ Where column `ID` can be an arbitrary sample identifier, `REP` describes the rep
             Options and arguments that will be supplied to Bowtie2 to modify mapping behaviour.
             Default: --local --very-sensitive-local --rdg 8,4 --rfg 8,4 --no-mixed
       --dedup
-            If true, deduplicate bam file.
-            Default: false
-      --keep_sorted_bam
-            If true, keep the sorted bam file generated from mapping.
-            Default: false
-      --keep_dedup_bam
-            If true, keep the deduplicated bam file.
+            If true, remove duplicates (hopefully library prep artifacts) from bam file.
             Default: false
 ---------------------------------------------------------------------------------------
 
@@ -217,8 +239,23 @@ Where column `ID` can be an arbitrary sample identifier, `REP` describes the rep
             Default: --type gene --idattr locus_tag --nonunique none --secondary-alignments ignore
       --samtools_filter_args
             Arguments supplied to samtools to will be used to filter alignments of interest for counting. Acceptable arguments: -f or -F.
-The default will only keep reads that aligned in proper pairs.
+            The default will only keep reads that aligned in proper pairs.
             Default: -f 2
+---------------------------------------------------------------------------------------
+
+ Coverage 
+      --strand_specific
+            If true, run strand-specific coverage analysis.
+            Default: false
+      --coverage_window_size
+            Size of window or step over which to compute cumulative per base coverage (output as a wig file).
+            Default: 100
+      --coverage_context
+            Provide context around the annotated region (coverage_window_size base pairs either side) in the coverage plot.
+            Default: 100
+      --pairwise
+            If true, generate pairwise sample comparison coverage plots.
+            Default: false
 ---------------------------------------------------------------------------------------
 
  Logging 
@@ -227,6 +264,52 @@ The default will only keep reads that aligned in proper pairs.
             Default: false
 ---------------------------------------------------------------------------------------
 ```
+
+## Output
+
+The pipeline will generate a directory structure in the output directory specified by `--outdir`. Some directories may be missing depending on the data retention flags employed (See [Usage](#usage)). Note that parameter values are represented by `{param_name}` below.
+```
+results/
+├── bowtie2
+├── coverage
+│   ├── plots
+│   ├── wig_{coverage_window_size}
+│   └── wig_raw
+├── fastp
+│   └── fastqc
+│       ├── raw
+│       └── trim
+├── filtered_bams
+│   ├── minus_filter
+│   ├── plus_filter
+│   └── user_defined_filter
+├── htseq
+├── multiqc
+│   ├── multiqc_report_data
+│   └── multiqc_report.html
+├── pipeline_info
+├── sorted_bams
+└── sorted_ref
+```
+
+The content of these folders is described in more detail below. Note that output files will be sample-specific if `--combine_rep` is used and replicate-specific otherwise:
+| Directory / File | Description |
+| --- | ---|
+| `bowtie2` | Contains Bowtie2 index files (`.bt2.*`) for the given reference (`--reference`). |
+| `coverage/plots` | Contains per sample (or pairwise-sample if `--pairwise`) folders, containing strand-specific coverage plots for all `gene` level annotations in the given `--gff` and intergenic regions. |
+| `coverage/wig_{coverage_window_size}` | Contains `*.wig` files which summarize cumulative (per base) genome coverage over steps of the given `--coverage_window_size`. |
+| `coverage/wig_raw` | Contains `*.wig` files per base genome coverage. |
+| `fastp/trimmed_fastqs` | Contains trimmed reads in `*.fastq.gz` files.<br> Generated with `--keep_trimmed_fastqs`. |
+| `fastp/reports` | Contains fastp report files in `html` and `json` format. |
+| `fastp/fastqc` | Contains FASTQC data and reports for both trimmed and raw `*.fastq.gz` files. |
+| `filtered_bams/(plus\|minus)_filter` | Contains reverse (`plus_filter`) and forward (`minus_filter`) strand-specific BAM files, containing reads that mapped to each strand of the given `--reference`.<br> Generated with `--keep_filter_bam`. |
+| `filtered_bams/user_defined_filter` | Contains BAM files, containing reads that mapped to the given `--reference` and filtered using `--samtools_filter_args`.<br> Generated with `--keep_filter_bam`. |
+| `htseq` | Contains HTSeq-generated count data (`tsv` format) suitable for differential expression analysis. It also contains a summary across all samples `gene_counts.tsv`. |
+| `multiqc` | Contains a summary of all interesting QC metrics/statistics generated by the pipeline. |
+| `sorted_bams` | Contains raw sorted BAM files (prior to filtering).<br> Generated with `--keep_sorted_bam`. |
+| `sorted_ref` | Contains a copy of the reference `fasta` and fasta index `*.fai`.<br> Generated only if a reference `*.fai` could not be detected in the same directory as the input reference. |
+| `pipeline_info` | Contains an execution report (`html`), execution trace (`tsv`) - useful for identifying failed processes, and a pipeline flowchart (`svg`). |
+
 
 ## Credits
 
