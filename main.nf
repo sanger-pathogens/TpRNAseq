@@ -4,40 +4,17 @@
 // MODULES
 //
 include {
-    BOWTIE2;
-    BOWTIE2_INDEX
-} from './modules/bowtie2'
-include {
-    FILTER_BAM;
-    SAMTOOLS_SORT;
-    INDEX_REF;
-    SAMTOOLS_INDEX_BAM;
-} from './modules/samtools'
-include {
-    FASTQC as FASTQC_RAW;
-    FASTQC as FASTQC_TRIM
-} from './modules/fastqc'
-include {
-    FASTP
-} from './modules/fastp'
-include {
-    HTSEQ_COUNT;
-    COMBINE_HTSEQ
-} from './modules/htseq'
-include {
-    PICARD_MARKDUP
-} from './modules/picard'
-include {
     MULTIQC
 } from './modules/multiqc'
-include {
-    COMBINE_FASTQS;
-} from './modules/custom'
 
 //
 // SUBWORKFLOWS
 //
-include { INPUT_CHECK } from './subworkflows/input_check'
+include { INPUT_CHECK } from './subworkflows/input_check'  //TODO Could possibly replace with nf-schema samplesheet parsing functionality?
+include { CREATE_INDEX } from './subworkflows/create_index'
+include { PROCESS_READS } from './subworkflows/process_reads'
+include { MAPPING } from './subworkflows/mapping'
+include { COUNT_READS } from './subworkflows/count_reads'
 include { STRAND_SPECIFIC_COVERAGE } from './subworkflows/strand_specific_coverage'
 
 /*
@@ -77,36 +54,17 @@ if (params.help) {
 ========================================================================================
 */
 
-def combine_meta(meta_list) {
-    def new_meta = [:]
-    meta_list.forEach { meta ->
-        new_meta = new_meta + meta
-    }
-    return new_meta
-}
-
-def collate_read_pairs(read_pairs_list) {
-    def read_1_list = []
-    def read_2_list = []
-    read_pairs_list.forEach { read_pair ->
-        read_1_list << read_pair[0]
-        read_2_list << read_pair[1]
-    }
-    return [read_1_list, read_2_list]
-}
-
 workflow {
 
-    reference = file(params.reference, checkIfExists: true)
-
-    // TODO: If we move to a subprocess
-    // take:
-    // ch_reads        // tuple( meta, read_1, read_2 )
-    // reference       // file: given reference
-    // annotation      // file: given annotation
-
     main:
+
+    reference = file(params.reference, checkIfExists: true)
     ch_manifest = file(params.manifest)
+
+    CREATE_INDEX(
+        reference
+    )
+
     INPUT_CHECK (
         ch_manifest
     )
@@ -114,135 +72,32 @@ workflow {
         .dump(tag: 'ch_reads')
         .set { ch_reads }
 
-    // COMBINE FASTQS BY SAMPLE
-    if (params.combine_fastqs) {
-        if (params.combine_rep) {
-            attrs_to_join = ["ID"]
-        } else {
-            attrs_to_join = ["ID", "REP"]
-        }
-
+    PROCESS_READS(
         ch_reads
-            .map { meta, reads -> [ attrs_to_join.collect{ meta[it] }.join("_"), meta, reads] }
-            .groupTuple()
-            .map { meta_id, meta_list, read_pairs_list ->
-                def read_lists = collate_read_pairs(read_pairs_list)
-                [combine_meta(meta_list), read_lists[0], read_lists[1]]
-            }
-            .set { ch_grouped_reads }
-
-        COMBINE_FASTQS(ch_grouped_reads)
-        COMBINE_FASTQS.out.combined_reads
-            .set { ch_reads }
-    }
-
-    // TODO: FROM nf-core - to adapt
-    // ch_multiqc_config          = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-    // ch_multiqc_custom_config   = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
-
-
-    // BOWTIE2 INDEX
-    ref_without_extension = "${reference.parent}/${reference.baseName}"
-    bt2_index_files = file("${ref_without_extension}*.bt2")
-    if (bt2_index_files) {
-        Channel.fromPath(bt2_index_files)
-            .collect()
-            .dump(tag: 'bt2_index')
-            .set { ch_bt2_index }
-    } else {
-        BOWTIE2_INDEX(
-            reference
-        )
-        BOWTIE2_INDEX.out.bt2_index.dump(tag: 'bt2_index').set { ch_bt2_index }
-    }
-
-    // INDEX REF FASTA
-    faidx_file = file("${reference}.fai")
-    if (faidx_file.isFile()) {
-        Channel.of( [reference, faidx_file] ).dump(tag: 'ref_index').set { ch_ref_index }
-    } else {
-        INDEX_REF(
-            reference
-        )
-        INDEX_REF.out.ref_index.dump(tag: 'ref_index').set { ch_ref_index }
-    }
-
-    // QC
-    FASTQC_RAW(ch_reads)
-
-    // TRIM
-    FASTP(ch_reads)
-    FASTP.out.trimmed_reads
-        .set { ch_trimmed_reads }
-
-    // QC
-    FASTQC_TRIM(ch_trimmed_reads)
-
-    // TODO Idea to provide a separate option for feeding lists of files into bowtie2 if user is not bothered about keeping combined fastq.gz files
-    // But would have to change the way we input into the bowtie2 process...
-    // if (params.group_for_bowtie2) {
-    //     ch_trimmed_reads
-    //         .map { meta, reads -> [meta.ID, meta, reads] }
-    //         .groupTuple()
-    //         .map { meta_id, meta_list, read_pairs_list ->
-    //             def read_lists = collate_read_pairs(read_pairs_list)
-    //             [combine_meta(meta_list), read_lists[0], read_lists[1]]
-    //         }
-    //         .set { ch_grouped_reads }
-    // }
-
-    // MAPPING: Bowtie2
-    BOWTIE2 (
-        ch_trimmed_reads,
-        ch_bt2_index
     )
-    SAMTOOLS_SORT(BOWTIE2.out.mapped_reads)
-    | SAMTOOLS_INDEX_BAM
-    
-    SAMTOOLS_INDEX_BAM.out.bam_index
-        .set { ch_sorted_reads }
 
-    // POST-MAPPING PROCESSING
-    if (params.dedup) {
-        PICARD_MARKDUP(ch_sorted_reads)
-        PICARD_MARKDUP.out.dedup_reads
-            .set { ch_reads_to_filter }
-    } else {
-        SAMTOOLS_SORT.out.sorted_reads.set { ch_reads_to_filter }
-    }
+    MAPPING(
+        PROCESS_READS.out.ch_trimmed_reads,
+        CREATE_INDEX.out.ch_bt2_index
+    )
 
-    // FILTER BAM
-    Channel.value([
-        "user_defined",
-        "${params.samtools_filter_args}"
-    ]).set { user_filter }
+    COUNT_READS(
+        MAPPING.out.ch_reads_to_filter
+    )
 
     if (params.strand_specific) {
         STRAND_SPECIFIC_COVERAGE(
-            ch_ref_index,
-            ch_reads_to_filter
+            CREATE_INDEX.out.ch_ref_index,
+            MAPPING.out.ch_reads_to_filter
         )
     }
 
-    FILTER_BAM(
-        ch_reads_to_filter,
-        user_filter
-    )
-    FILTER_BAM.out.filtered_bam
-        .set { ch_filtered_reads }
-
-    // COUNTING
-    HTSEQ_COUNT(ch_filtered_reads)
-    HTSEQ_COUNT.out.sample_feature_counts
-        .map { ID, count_table -> count_table }
-        .collect()
-        .set { ch_count_tables }
-
-    COMBINE_HTSEQ(ch_count_tables)
-
     // MULTIQC SUMMARY
+    // TODO: FROM nf-core - to adapt
+    // ch_multiqc_config          = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+    // ch_multiqc_custom_config   = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
     MULTIQC(
-        FASTQC_RAW.out.zip.collect{it[1]}.ifEmpty([]),
-        FASTQC_TRIM.out.zip.collect{it[1]}.ifEmpty([])
+        PROCESS_READS.out.ch_fastqc_raw_zip.collect{it[1]}.ifEmpty([]),
+        PROCESS_READS.out.ch_fastqc_trim_zip.collect{it[1]}.ifEmpty([])
     )
 }
