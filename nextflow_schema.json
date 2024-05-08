@@ -5,8 +5,8 @@
   "description": "NA",
   "type": "object",
   "defs": {
-    "input": {
-      "title": "Input",
+    "input_options": {
+      "title": "Input Options",
       "type": "object",
       "fa_icon": "fas fa-terminal",
       "description": "Define where the pipeline should find input data.",
@@ -38,8 +38,8 @@
         }
       }
     },
-    "output": {
-      "title": "Output",
+    "output_options": {
+      "title": "Output Options",
       "type": "object",
       "description": "Define what output the pipeline should save.",
       "default": "",
@@ -73,8 +73,8 @@
         }
       }
     },
-    "data_combining": {
-      "title": "Data combining",
+    "data_combining_options": {
+      "title": "Data Combining Options",
       "type": "object",
       "description": "",
       "default": "",
@@ -89,8 +89,8 @@
         }
       }
     },
-    "qc": {
-      "title": "QC",
+    "qc_options": {
+      "title": "QC Options",
       "type": "object",
       "description": "",
       "default": "",
@@ -98,7 +98,7 @@
         "trimmer": {
           "type": "string",
           "default": "fastp",
-          "description": "Software to use for trimming. Options: fastp.",
+          "description": "Software to use for trimming.",
           "enum": ["fastp"]
         },
         "fastp_args": {
@@ -111,8 +111,8 @@
         }
       }
     },
-    "mapping": {
-      "title": "Mapping",
+    "mapping_options": {
+      "title": "Mapping Options",
       "type": "object",
       "description": "",
       "default": "",
@@ -124,8 +124,8 @@
         }
       }
     },
-    "counting": {
-      "title": "Counting",
+    "counting_options": {
+      "title": "Counting Options",
       "type": "object",
       "description": "",
       "default": "",
@@ -148,8 +148,8 @@
         }
       }
     },
-    "coverage": {
-      "title": "Coverage",
+    "coverage_options": {
+      "title": "Coverage Options",
       "type": "object",
       "description": "",
       "default": "",
@@ -174,11 +174,11 @@
         }
       }
     },
-    "max_job_request_options": {
-      "title": "Max job request options",
+    "resource_request_options": {
+      "title": "Resource Request Options",
       "type": "object",
       "fa_icon": "fab fa-acquisitions-incorporated",
-      "description": "Set the top limit for requested resources for any single job.",
+      "description": "Set limits for requested resources.",
       "help_text": "If you are running on a smaller system, a pipeline step requesting more resources than are available may cause the Nextflow to stop the run with an error. These options allow you to cap the maximum resources requested by any single job so that the pipeline will run on your system.\n\nNote that you can not _increase_ the resources requested by any job using these options. For that you will need your own configuration file. See [the nf-core website](https://nf-co.re/usage/configuration) for details.",
       "properties": {
         "max_cpus": {
@@ -260,8 +260,8 @@
         }
       }
     },
-    "config_inheritance": {
-      "title": "Config inheritance",
+    "config_inheritance_options": {
+      "title": "Config Inheritance Options",
       "type": "object",
       "description": "Options to modify config inheritance",
       "default": "",
@@ -294,40 +294,45 @@
           "default": "master",
           "hidden": true,
           "description": "Specify the version of nf-core configs to inherit (will be appended to base URL)."
+        },
+        "input": {
+          "type": "string",
+          "hidden": true,
+          "description": "Ignore: Parameter inherited but not used by this pipeline."
         }
       }
     }
   },
   "allOf": [
     {
-      "$ref": "#/defs/input"
+      "$ref": "#/defs/input_options"
     },
     {
-      "$ref": "#/defs/output"
+      "$ref": "#/defs/output_options"
     },
     {
-      "$ref": "#/defs/data_combining"
+      "$ref": "#/defs/data_combining_options"
     },
     {
-      "$ref": "#/defs/qc"
+      "$ref": "#/defs/qc_options"
     },
     {
-      "$ref": "#/defs/mapping"
+      "$ref": "#/defs/mapping_options"
     },
     {
-      "$ref": "#/defs/counting"
+      "$ref": "#/defs/counting_options"
     },
     {
-      "$ref": "#/defs/coverage"
+      "$ref": "#/defs/coverage_options"
     },
     {
-      "$ref": "#/defs/max_job_request_options"
+      "$ref": "#/defs/resource_request_options"
     },
     {
       "$ref": "#/defs/generic_options"
     },
     {
-      "$ref": "#/defs/config_inheritance"
+      "$ref": "#/defs/config_inheritance_options"
     }
   ]
 }
