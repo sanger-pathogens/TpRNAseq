@@ -1,0 +1,333 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/sanger-pathogens/TpRNAseq/master/nextflow_schema.json",
+  "title": "TpRNAseq pipeline parameters",
+  "description": "NA",
+  "type": "object",
+  "defs": {
+    "input": {
+      "title": "Input",
+      "type": "object",
+      "fa_icon": "fas fa-terminal",
+      "description": "Define where the pipeline should find input data.",
+      "required": [
+        "manifest",
+        "reference",
+        "annotation",
+        "library_strandedness"
+      ],
+      "properties": {
+        "manifest": {
+          "type": "string",
+          "description": "Path to a CSV manifest comprising 4 columns (ID, REP, R1, R2). ID is an arbitrary sample ID, REP describes replicate structure, R1 and R2 columns contain paths to *.fastq.gz files.",
+          "format": "file-path"
+        },
+        "reference": {
+          "type": "string",
+          "format": "file-path"
+        },
+        "annotation": {
+          "type": "string",
+          "description": "Path to genome annotation in GFF format.",
+          "format": "file-path"
+        },
+        "library_strandedness": {
+          "type": "string",
+          "description": "Strandedness of the RNAseq library. Options: reverse, forward, none.",
+          "enum": ["reverse", "forward", "none"]
+        }
+      }
+    },
+    "output": {
+      "title": "Output",
+      "type": "object",
+      "description": "Define what output the pipeline should save.",
+      "default": "",
+      "properties": {
+        "outdir": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "The output directory where the results will be saved.",
+          "fa_icon": "fas fa-folder-open",
+          "default": "./results"
+        },
+        "keep_combined_fastqs": {
+          "type": "boolean",
+          "description": "Keep the combined fastqs."
+        },
+        "keep_trimmed_fastqs": {
+          "type": "boolean",
+          "description": "Keep the trimmed fastqs."
+        },
+        "keep_sorted_bam": {
+          "type": "boolean",
+          "description": "Keep the sorted bam files generated from mapping."
+        },
+        "keep_dedup_bam": {
+          "type": "boolean",
+          "description": "Keep the deduplicated bam files."
+        },
+        "keep_filtered_bam": {
+          "type": "boolean",
+          "description": "Keep filtered bam files."
+        }
+      }
+    },
+    "data_combining": {
+      "title": "Data combining",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "combine_fastqs": {
+          "type": "boolean",
+          "description": "Combine fastqs at replicate level, based on the replicate structure described in the manifest."
+        },
+        "combine_rep": {
+          "type": "boolean",
+          "description": "Combine fastqs at sample level, based on sample identifiers provided in the manifest."
+        }
+      }
+    },
+    "qc": {
+      "title": "QC",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "trimmer": {
+          "type": "string",
+          "default": "fastp",
+          "description": "Software to use for trimming. Options: fastp.",
+          "enum": ["fastp"]
+        },
+        "fastp_args": {
+          "type": "string",
+          "description": "Options and arguments that will be supplied to fastp to modify QC behaviour."
+        },
+        "dedup": {
+          "type": "boolean",
+          "description": "Remove duplicates (hopefully library prep artifacts) from bam file post-mapping."
+        }
+      }
+    },
+    "mapping": {
+      "title": "Mapping",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "bowtie2_args": {
+          "type": "string",
+          "default": "--local --very-sensitive-local --rdg 8,4 --rfg 8,4 --no-mixed",
+          "description": "Options and arguments that will be supplied to Bowtie2 to modify mapping behaviour."
+        }
+      }
+    },
+    "counting": {
+      "title": "Counting",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "htseq_args": {
+          "type": "string",
+          "default": "--type gene --idattr locus_tag --nonunique none --secondary-alignments ignore",
+          "description": "Options and arguments that will be supplied to htseq-count to modify counting behaviour."
+        },
+        "samtools_filter_args": {
+          "type": "string",
+          "default": "-f 2",
+          "description": "Arguments supplied to samtools to will be used to filter alignments of interest for counting.",
+          "help_text": "Acceptable arguments: -f, -F, --rf, -G, -e. See https://www.htslib.org/doc/samtools-view.html for more details. The default will only keep reads that aligned in proper pairs."
+        },
+        "annotate_feature_assignment": {
+          "type": "boolean",
+          "description": "Generate an annotated bam file where each read is assigned to the feature for which is has been counted.",
+          "help_text": "See https://htseq.readthedocs.io/en/master/htseqcount.html#cmdoption-htseq-count-o"
+        }
+      }
+    },
+    "coverage": {
+      "title": "Coverage",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "strand_specific": {
+          "type": "boolean",
+          "description": "Run strand-specific coverage analysis."
+        },
+        "pairwise": {
+          "type": "boolean",
+          "description": "Generate pairwise sample comparison coverage plots."
+        },
+        "coverage_window_size": {
+          "type": "integer",
+          "default": 100,
+          "description": "Size of window or step over which to compute cumulative per base coverage (output as a wig file)."
+        },
+        "coverage_context": {
+          "type": "integer",
+          "default": 100,
+          "description": "Size of context around the annotated region (coverage_window_size base pairs either side) in the coverage plot."
+        }
+      }
+    },
+    "max_job_request_options": {
+      "title": "Max job request options",
+      "type": "object",
+      "fa_icon": "fab fa-acquisitions-incorporated",
+      "description": "Set the top limit for requested resources for any single job.",
+      "help_text": "If you are running on a smaller system, a pipeline step requesting more resources than are available may cause the Nextflow to stop the run with an error. These options allow you to cap the maximum resources requested by any single job so that the pipeline will run on your system.\n\nNote that you can not _increase_ the resources requested by any job using these options. For that you will need your own configuration file. See [the nf-core website](https://nf-co.re/usage/configuration) for details.",
+      "properties": {
+        "max_cpus": {
+          "type": "integer",
+          "description": "Maximum number of CPUs that can be requested for any single job.",
+          "default": 256,
+          "fa_icon": "fas fa-microchip",
+          "help_text": "Use to set an upper-limit for the CPU requirement for each process. Should be an integer e.g. `--max_cpus 1`"
+        },
+        "max_memory": {
+          "type": "string",
+          "description": "Maximum amount of memory that can be requested for any single job.",
+          "default": "2.9 TB",
+          "fa_icon": "fas fa-memory",
+          "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
+          "help_text": "Use to set an upper-limit for the memory requirement for each process. Should be a string in the format integer-unit e.g. `--max_memory '8.GB'`"
+        },
+        "max_time": {
+          "type": "string",
+          "description": "Maximum amount of time that can be requested for any single job.",
+          "default": "30d",
+          "fa_icon": "far fa-clock",
+          "pattern": "^(\\d+\\.?\\s*(s|m|h|d|day)\\s*)+$",
+          "help_text": "Use to set an upper-limit for the time requirement for each process. Should be a string in the format integer-unit e.g. `--max_time '2.h'`"
+        },
+        "max_retries": {
+          "type": "integer",
+          "default": 2,
+          "description": "Maximum number of retries before ingnoring process failure."
+        },
+        "retry_strategy": {
+          "type": "string",
+          "default": "ignore",
+          "description": "Default retry strategy (used in the event that software fails to process data for an unexpected reason)"
+        },
+        "submit_rate_limit": {
+          "type": "string",
+          "hidden": true,
+          "description": "LSF-specific: Change the rate at which the pipeline will submit jobs on the cluster."
+        },
+        "queue_size": {
+          "type": "string",
+          "hidden": true,
+          "description": "LSF-specific: Maximum number of jobs pipeline will submit jobs on the cluster at any given time."
+        }
+      }
+    },
+    "generic_options": {
+      "title": "Generic options",
+      "type": "object",
+      "fa_icon": "fas fa-file-import",
+      "description": "Less common options for the pipeline, typically set in a config file.",
+      "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
+      "properties": {
+        "help": {
+          "type": "boolean",
+          "description": "Display help text.",
+          "fa_icon": "fas fa-question-circle",
+          "hidden": true
+        },
+        "monochrome_logs": {
+          "type": "boolean",
+          "description": "Do not use coloured log outputs.",
+          "fa_icon": "fas fa-palette",
+          "hidden": true
+        },
+        "multiqc_config": {
+          "type": "string",
+          "format": "file-path",
+          "description": "Custom config file to supply to MultiQC.",
+          "fa_icon": "fas fa-cog",
+          "hidden": true
+        },
+        "tracedir": {
+          "type": "string",
+          "default": "./results/pipeline_info",
+          "hidden": true,
+          "description": "Directory in which to save pipeline reporting information."
+        }
+      }
+    },
+    "config_inheritance": {
+      "title": "Config inheritance",
+      "type": "object",
+      "description": "Options to modify config inheritance",
+      "default": "",
+      "properties": {
+        "generic_config_base": {
+          "type": "string",
+          "default": "https://raw.githubusercontent.com/sanger-pathogens/nextflow-commons/",
+          "hidden": true,
+          "description": "Inherit configuration from a base URL."
+        },
+        "generic_config_version": {
+          "type": "string",
+          "default": "master",
+          "hidden": true,
+          "description": "Specify the version to inherit (will be appended to base URL)."
+        },
+        "generic_config_url": {
+          "type": "string",
+          "hidden": true,
+          "description": "Override the above with a generic config URL (or file path)."
+        },
+        "nf_core_custom_config_base": {
+          "type": "string",
+          "default": "https://raw.githubusercontent.com/nf-core/configs/master",
+          "hidden": true,
+          "description": "nf-core configuration base URL."
+        },
+        "nf_core_custom_config_version": {
+          "type": "string",
+          "default": "master",
+          "hidden": true,
+          "description": "Specify the version of nf-core configs to inherit (will be appended to base URL)."
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/defs/input"
+    },
+    {
+      "$ref": "#/defs/output"
+    },
+    {
+      "$ref": "#/defs/data_combining"
+    },
+    {
+      "$ref": "#/defs/qc"
+    },
+    {
+      "$ref": "#/defs/mapping"
+    },
+    {
+      "$ref": "#/defs/counting"
+    },
+    {
+      "$ref": "#/defs/coverage"
+    },
+    {
+      "$ref": "#/defs/max_job_request_options"
+    },
+    {
+      "$ref": "#/defs/generic_options"
+    },
+    {
+      "$ref": "#/defs/config_inheritance"
+    }
+  ]
+}

@@ -17,6 +17,11 @@ include { MAPPING } from './subworkflows/mapping'
 include { COUNT_READS } from './subworkflows/count_reads'
 include { STRAND_SPECIFIC_COVERAGE } from './subworkflows/strand_specific_coverage'
 
+//
+// PLUGINS
+//
+include { validateParameters; paramsHelp; paramsSummaryLog; samplesheetToList } from 'plugin/nf-schema'
+
 /*
 ========================================================================================
     HELP
@@ -26,18 +31,8 @@ include { STRAND_SPECIFIC_COVERAGE } from './subworkflows/strand_specific_covera
 def logo = NextflowTool.logo(workflow, params.monochrome_logs)
 log.info logo
 
-
-def printHelp() {
-    NextflowTool.help_message(
-        "${workflow.ProjectDir}/schema.json",
-        params.monochrome_logs,
-        log
-    )
-}
-
 if (params.help) {
-    params.reporting = false
-    printHelp()
+    log.info paramsHelp("nextflow run main.nf --manifest <manifest> --annotation <gff> --reference <fasta> --library_strandedness [reverse] --outdir [./results]")
     exit(0)
 }
 
@@ -47,9 +42,7 @@ if (params.help) {
 ========================================================================================
 */
 
-
-
-ParamValidator.validate_parameters(params, log)
+validateParameters()
 
 /*
 ========================================================================================
