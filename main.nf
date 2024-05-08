@@ -42,7 +42,29 @@ if (params.help) {
 ========================================================================================
 */
 
+// Nf-schema param validation
 validateParameters()
+
+// Validate parameters in ways not currently (easily) supported by nf-schema
+def validate_custom_params(params, log, monochrome_logs) {
+    Map colors = NextflowTool.logColours(monochrome_logs)
+
+    def errors = 0
+
+    log.info("${colors.red}")
+    errors += ParamValidator.validate_no_invalid_args("--fastp_args", params.fastp_args, ["--in1", "--in2", "--out1", "--out2", "-h", "-j", "--thread"], log)
+    errors += ParamValidator.validate_no_invalid_args("--bowtie2_args", params.bowtie2_args, ["-x", "-1", "-2", "-p", "-S"], log)
+    errors += ParamValidator.validate_only_valid_args("--samtools_filter_args", params.samtools_filter_args, ["-f", "-F", "--rf", "-G", "-e"], log)
+    errors += ParamValidator.validate_no_invalid_args("--htseq_args", params.htseq_args, ["--samout", "--samout-format", "--order", "--stranded", "--counts_output"], log)
+    log.info("${colors.reset}")
+
+    if (errors > 0) {
+        log.error String.format("%d errors detected while validating parameters", errors)
+        exit 1
+    }
+}
+
+validate_custom_params(params, log, params.monochrome_logs)
 
 /*
 ========================================================================================
