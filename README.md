@@ -14,9 +14,17 @@ The pipeline can be run on local machines and high-performance computing (HPC) c
 
 ![TpRNAseq_workflow](./docs/images/TpRNAseq_workflow.svg)
 
-In its simplest usage, **Tp RNAseq** takes a sample manifest (CSV; see [Generating a manifest](#generating-a-manifest)), reference (fasta) and annotation (gff) as input. It first runs some basic QC using `fastp` on the `.fastq.gz` files provided in the sample manifest. This involves adaptor removal and trimming of poor quality bases from the ends of the reads. The pipeline will then map reads to the given reference genome using Bowtie2. In order to do this, bowtie2 index files are required. These will be created if necessary.
+In its simplest usage, **Tp RNAseq** takes a sample manifest (CSV; see [Generating a manifest](#generating-a-manifest)), reference (fasta) and annotation (gff) as input. It then runs the following steps on `.fastq.gz` files provided in the sample manifest:
 
-Following mapping, the pipeline will mark and remove duplicates using Picard's [MarkDuplicates](https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard). These deduplicated alignments will then be quantified per feature using HTSeq. For each sample, the pipeline outputs fastqc reports pre- and post-QC and a HTSeq count table. The count tables are combined across samples to generate a summary count table for convenient downstream analysis. It also allows the user to optionally output alignment files (bam) pre- and post-deduplication. Reports are summarized using [multiQC](https://multiqc.info/).
+1. **Data combining**: `.fastq.gz` files are combined based on sample or replicate structure.
+2. **Basic QC**: Adaptor removal and trimming of poor quality bases is performed by `fastp`. Quality assessment with `FASTQC` pre- and post-fastp, displayed in a convenient `html` report using [multiQC](https://multiqc.info/).
+3. **Mapping**: Reads are mapped to the given reference genome using `Bowtie2`. Bowtie2 index files are created if necessary.
+4. **Duplicate removal** (optional): Duplicate reads are removed using Picard's [MarkDuplicates](https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard).
+5. **Read filtering**: Aligned reads are filtered with a user-defined filter (keeping all properly mapped read pairs by default). Additional filters are applied to generate strand-specific BAM files.
+6. **Read quantification per feature**: Performed on the user-defined filtered BAM by `htseq-count`. The generated count tables are combined across samples to generate a summary count table for convenient downstream analysis.
+7. **Coverage analysis**: Performed by `bedtools` and custom scripts on the strand-specific BAM files. Coverage plots will be generated per gene and intergenic region from the given annotation file (gff).
+
+The pipeline allows users to keep various intermediate files along the way. See [Usage](#usage) and [Output](#output) for more details.
 
 ## Requirements
 
