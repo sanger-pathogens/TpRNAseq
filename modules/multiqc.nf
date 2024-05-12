@@ -13,7 +13,9 @@ process MULTIQC {
     path('fastqc/raw/*')
     path('fastqc/trim/*')
     path('fastp/*')
+    path('samtools_stats/raw/*')
     path('picard/*')
+    path('samtools_stats/filtered/*')
 
     output:
     path("multiqc_report.html"), emit: report

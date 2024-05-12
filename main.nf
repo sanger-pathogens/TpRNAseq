@@ -118,6 +118,8 @@ workflow {
         PROCESS_READS.out.ch_fastqc_raw_zip.collect{it[1]}.ifEmpty([]),
         PROCESS_READS.out.ch_fastqc_trim_zip.collect{it[1]}.ifEmpty([]),
         PROCESS_READS.out.ch_fastp_reports.collect{it[1]}.ifEmpty([]),
+        MAPPING.out.ch_samtools_stats.collect{it[1]}.ifEmpty([]),
         MAPPING.out.ch_dedup_metrics.collect{it[1]}.ifEmpty([]),
+        COUNT_READS.out.ch_samtools_stats.collect{it[1]}.ifEmpty([]),
     )
 }
