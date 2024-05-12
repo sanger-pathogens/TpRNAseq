@@ -116,6 +116,8 @@ workflow {
     // ch_multiqc_custom_config   = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
     MULTIQC(
         PROCESS_READS.out.ch_fastqc_raw_zip.collect{it[1]}.ifEmpty([]),
-        PROCESS_READS.out.ch_fastqc_trim_zip.collect{it[1]}.ifEmpty([])
+        PROCESS_READS.out.ch_fastqc_trim_zip.collect{it[1]}.ifEmpty([]),
+        PROCESS_READS.out.ch_fastp_reports.collect{it[1]}.ifEmpty([]),
+        MAPPING.out.ch_dedup_metrics.collect{it[1]}.ifEmpty([]),
     )
 }
