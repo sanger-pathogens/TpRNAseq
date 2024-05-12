@@ -149,6 +149,12 @@ Where column `ID` can be an arbitrary sample identifier, `REP` describes the rep
 
 ## Usage
 
+Pipeline-specific options are outlined in the help message below. Run the pipeline with `--help` to view this.
+
+There are also a number of `nextflow`-specific options, which start with a single `-`. A summary of these options can be found at https://www.nextflow.io/docs/latest/cli.html and viewed on the command line by running `nextflow -h`. Of these, the most useful are probably:
+- `-resume`: to run the pipeline again while making use of data that has been generated previously (saving computation time and resources).
+- `-r <tag/branch/revision_number>`: to run a specific version of this pipeline to ensure reproducible/comparable results. 
+
 ```console
 ---------------------------------------------------------------------------------------
 
