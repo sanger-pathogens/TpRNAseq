@@ -28,12 +28,13 @@ workflow MAPPING {
     // POST-MAPPING PROCESSING
     if (params.dedup) {
         PICARD_MARKDUP(ch_sorted_reads)
-        PICARD_MARKDUP.out.dedup_reads
-            .set { ch_reads_to_filter }
+        PICARD_MARKDUP.out.dedup_reads.set { ch_reads_to_filter }
+        PICARD_MARKDUP.out.dedup_metrics.set { ch_dedup_metrics }
     } else {
         SAMTOOLS_SORT.out.sorted_reads.set { ch_reads_to_filter }
     }
 
     emit:
     ch_reads_to_filter
+    ch_dedup_metrics
 }
