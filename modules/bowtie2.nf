@@ -32,7 +32,7 @@ process BOWTIE2_INDEX {
     label 'mem_8'
     label 'time_12'
 
-    publishDir "${params.outdir}/bowtie2", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/bowtie2_index", mode: 'copy', overwrite: true
 
     container 'quay.io/biocontainers/bowtie2:2.5.1--py310h8d7afc0_0'
 
