@@ -62,8 +62,8 @@ workflow PROCESS_READS {
     // TRIM
     //TODO Provide option if user doesn't want to trim!
     FASTP(ch_reads)
-    FASTP.out.trimmed_reads
-        .set { ch_trimmed_reads }
+    FASTP.out.trimmed_reads.set { ch_trimmed_reads }
+    FASTP.out.fastp_reports.set { ch_fastp_reports }
 
     // QC
     FASTQC_TRIM(ch_trimmed_reads)
@@ -73,6 +73,7 @@ workflow PROCESS_READS {
     emit:
     ch_reads
     ch_trimmed_reads
+    ch_fastp_reports
     ch_fastqc_raw_zip
     ch_fastqc_raw_html
     ch_fastqc_trim_zip
