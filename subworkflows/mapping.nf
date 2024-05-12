@@ -4,6 +4,7 @@ include {
 include {
     SAMTOOLS_SORT;
     SAMTOOLS_INDEX_BAM;
+    SAMTOOLS_STATS
 } from '../modules/samtools'
 include {
     PICARD_MARKDUP
@@ -25,6 +26,10 @@ workflow MAPPING {
     SAMTOOLS_INDEX_BAM.out.bam_index
         .set { ch_sorted_reads }
 
+    SAMTOOLS_STATS(ch_sorted_reads)
+    SAMTOOLS_STATS.out.stats_ch
+        .set { ch_samtools_stats }
+
     // POST-MAPPING PROCESSING
     if (params.dedup) {
         PICARD_MARKDUP(ch_sorted_reads)
@@ -37,4 +42,5 @@ workflow MAPPING {
     emit:
     ch_reads_to_filter
     ch_dedup_metrics
+    ch_samtools_stats
 }

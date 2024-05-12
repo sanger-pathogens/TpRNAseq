@@ -1,5 +1,7 @@
 include {
     FILTER_BAM;
+    SAMTOOLS_INDEX_BAM;
+    SAMTOOLS_STATS
 } from '../modules/samtools'
 include {
     HTSEQ_COUNT;
@@ -24,6 +26,12 @@ workflow COUNT_READS {
     FILTER_BAM.out.filtered_bam
         .set { ch_filtered_reads }
 
+    SAMTOOLS_INDEX_BAM(ch_filtered_reads)
+
+    SAMTOOLS_STATS(SAMTOOLS_INDEX_BAM.out.bam_index)
+    SAMTOOLS_STATS.out.stats_ch
+        .set { ch_samtools_stats }
+
     // COUNTING
     HTSEQ_COUNT(ch_filtered_reads)
     HTSEQ_COUNT.out.sample_feature_counts
@@ -32,4 +40,7 @@ workflow COUNT_READS {
         .set { ch_count_tables }
 
     COMBINE_HTSEQ(ch_count_tables)
+
+    emit:
+    ch_samtools_stats
 }
