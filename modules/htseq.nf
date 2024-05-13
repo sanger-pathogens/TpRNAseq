@@ -29,16 +29,25 @@ process HTSEQ_COUNT {
         """
     }
 
+    //TODO Probably better to put this outside the process and have a strandedness value process input?
+    switch (params.library_strandedness) {
+        case "none":
+            htseq_strandedness = "no"
+            break
+        case "forward":
+            htseq_strandedness = "yes"
+            break
+        case "reverse":
+            htseq_strandedness = "reverse"
+            break
+        default:
+            log.error "Unrecognised parameter value for strandedness: ${params.library_strandedness}"
+    }
 
-        // # TODO: Put the following options into htseq_args param? The --type and --idattr should be mandatory options really (defaults are "exon" and "gene_id" respectively, but user should be encouraged to check the annotation file), so perhaps better to have each as a separate option? 
-        // # --type gene \
-        // # --idattr locus_tag \
-        // # --nonunique none \
-        // # --secondary-alignments ignore \
     """
     htseq-count \
         --order pos \
-        --stranded ${params.library_strandedness} \
+        --stranded ${htseq_strandedness} \
         ${params.htseq_args} \
         --counts_output ${count_table} \
         ${assignment_annotation_args} \
