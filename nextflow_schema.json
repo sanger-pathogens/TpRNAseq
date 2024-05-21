@@ -278,14 +278,14 @@
           "hidden": true,
           "description": "Specify the version to inherit (will be appended to base URL)."
         },
-        "generic_config_url": {
+        "generic_config": {
           "type": "string",
           "hidden": true,
           "description": "Override the above with a generic config URL (or file path)."
         },
         "nf_core_custom_config_base": {
           "type": "string",
-          "default": "https://raw.githubusercontent.com/nf-core/configs/master",
+          "default": "https://raw.githubusercontent.com/nf-core/configs/",
           "hidden": true,
           "description": "nf-core configuration base URL."
         },
@@ -294,6 +294,11 @@
           "default": "master",
           "hidden": true,
           "description": "Specify the version of nf-core configs to inherit (will be appended to base URL)."
+        },
+        "nf_core_custom_config": {
+          "type": "string",
+          "hidden": true,
+          "description": "Override the above with an nf-core config URL (or file path)."
         },
         "input": {
           "type": "string",
