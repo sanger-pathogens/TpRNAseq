@@ -135,6 +135,17 @@ These profiles are supported out-of-the-box by this pipeline. You simply have to
 :warning: If no profile is specified the pipeline will run with a Sanger HPC-specific configuration. 
 
 
+## Managing image dependencies and running offline
+
+With some profiles, namely `singularity` or `apptainer`, environment variables (`NXF_SINGULARITY_CACHEDIR` and `NXF_APPTAINER_CACHEDIR`) should be set to a directory path where a cache of images should be stored. See [here](https://www.nextflow.io/docs/latest/config.html#environment-variables) for more information on nextflow environment variables and [here](https://www.nextflow.io/docs/stable/container.html) for more information on how nextflow manages container dependencies. These variables should be set in a config file, e.g. `~/.bashrc`, to allow the reuse of images in the cache (and avoid the pipeline downloading them whenever it is run in a new directory).
+
+Should you need to run the pipeline offline, it is best to make use of pre-populated dependency caches. These can be created with any of the supported profiles (e.g. `-profile docker` or `-profile conda`) and involves running the pipeline once to completion with all the options that would be required for offline usage.
+
+Additionally, the pipeline makes use of configuration files that are pulled from online sources. To avoid a dependence on these, you must download the configuration files in advance and specify their local paths using `--nf_core_custom_config` and `--generic_config`.
+
+nf-core also provides [`nf-core download`](https://github.com/nf-core/tools?tab=readme-ov-file#downloading-pipelines-for-offline-use) tool that allows you to easily download pipelines and singularity images for offline use. To use this, you will have to first [install the `nf-core` tool](https://github.com/nf-core/tools?tab=readme-ov-file#installation). 
+
+
 ## Generating a manifest
 
 Manifests supplied as an argument to `--manifest`, should be of of the following format:
