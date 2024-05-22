@@ -21,7 +21,6 @@ process PICARD_MARKDUP {
     output_stem = "${meta.ID}_REP${meta.REP}"
     dedup_reads = "${output_stem}_dedup.bam"
     metrics_file = "${output_stem}_dedup_metrics.txt"
-    //TODO We could perhaps use mkfifo to avoid the intermediate *fixed.bam file?
     """
     picard FixMateInformation \
         -I ${sorted_reads} \
@@ -35,5 +34,7 @@ process PICARD_MARKDUP {
         --READ_NAME_REGEX null \
         --TAG_DUPLICATE_SET_MEMBERS true \
         --SORTING_COLLECTION_SIZE_RATIO 0.1
+
+    rm tmp.fixed.bam
     """
 }
