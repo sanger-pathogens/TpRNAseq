@@ -82,6 +82,7 @@ process INDEX_REF {
 }
 
 process SAMTOOLS_INDEX_BAM {
+    tag "${meta.ID} : REP${meta.REP}"
     label 'cpu_2'
     label 'mem_100M'
     label 'time_1'
@@ -103,6 +104,7 @@ process SAMTOOLS_INDEX_BAM {
 }
 
 process SAMTOOLS_STATS {
+    tag "${meta.ID} : REP${meta.REP}"
     label 'cpu_2'
     label 'mem_1'
     label 'time_30m'
