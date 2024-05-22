@@ -7,6 +7,7 @@ process FASTP {
     publishDir "${params.outdir}/fastp/trimmed_fastqs", enabled: params.keep_trimmed_fastqs, mode: 'copy', overwrite: true, pattern: "*.fastq.gz"
     publishDir "${params.outdir}/fastp/reports", mode: 'copy', overwrite: true, pattern: "*.{html,json}"
 
+    conda 'bioconda::fastp=0.23.4'
     container 'quay.io/biocontainers/fastp:0.23.4--hadf994f_2'
 
     input:

@@ -5,6 +5,7 @@ process MULTIQC {
 
     cache false
 
+    conda 'bioconda::multiqc=1.19'
     container 'quay.io/biocontainers/multiqc:1.19--pyhdfd78af_0'
 
     publishDir "${params.outdir}/multiqc", mode: 'copy', overwrite: true

@@ -4,6 +4,7 @@ process PICARD_MARKDUP {
     label 'mem_2'
     label 'time_12'
 
+    conda 'bioconda::picard=3.1.1'
     container 'quay.io/biocontainers/picard:3.1.1--hdfd78af_0'
 
     publishDir "${params.outdir}/picard", enabled: params.keep_dedup_bam, mode: 'copy', overwrite: true, pattern: "*.bam"

@@ -4,6 +4,7 @@ process HTSEQ_COUNT {
     label 'mem_100M'
     label 'time_1'
 
+    conda "bioconda::htseq=2.0.5"
     container 'quay.io/biocontainers/htseq:2.0.5--py310h5aa3a86_0'
 
     publishDir "${params.outdir}/htseq", mode: 'copy', overwrite: true, pattern: "*_counts.tsv"
@@ -62,6 +63,8 @@ process COMBINE_HTSEQ {
     label 'time_1'
 
     publishDir "${params.outdir}/htseq", mode: 'copy', overwrite: true, pattern: "*_counts.tsv"
+
+    container 'ubuntu:22.04'
 
     input:
     path(count_tables)

@@ -4,6 +4,7 @@ process FASTQC {
     label 'mem_2'
     label 'time_12'
 
+    conda 'bioconda::fastqc=0.12.1'
     container 'quay.io/biocontainers/fastqc:0.12.1--hdfd78af_0'
 
     input:

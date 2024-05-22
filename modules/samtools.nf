@@ -6,7 +6,8 @@ process FILTER_BAM {
 
     publishDir "${params.outdir}/filtered_bams/${filter_name}_filter", enabled: params.keep_filtered_bam, mode: 'copy', overwrite: true
 
-    container 'quay.io/biocontainers/samtools:1.16.1--h00cdaf9_2'
+    conda "bioconda::samtools=1.19"
+    container "quay.io/biocontainers/samtools:1.19.2--h50ea8bc_1"
 
     input:
     tuple val(meta), path(mapped_reads)
@@ -38,7 +39,8 @@ process SAMTOOLS_SORT {
 
     publishDir "${params.outdir}/sorted_bams/", enabled: params.keep_sorted_bam, mode: 'copy', overwrite: true
 
-    container 'quay.io/biocontainers/samtools:1.16.1--h00cdaf9_2'
+    conda "bioconda::samtools=1.19"
+    container "quay.io/biocontainers/samtools:1.19.2--h50ea8bc_1"
 
     input:
     tuple val(meta), path(mapped_reads_bam)
@@ -63,7 +65,8 @@ process INDEX_REF {
 
     publishDir "${params.outdir}/ref_index", mode: 'copy', overwrite: true
 
-    container 'quay.io/biocontainers/samtools:1.16.1--h00cdaf9_2'
+    conda "bioconda::samtools=1.19"
+    container "quay.io/biocontainers/samtools:1.19.2--h50ea8bc_1"
 
     input:
     path(reference)
@@ -83,7 +86,8 @@ process SAMTOOLS_INDEX_BAM {
     label 'mem_100M'
     label 'time_1'
 
-    container 'quay.io/biocontainers/samtools:1.16.1--h00cdaf9_2'
+    conda "bioconda::samtools=1.19"
+    container "quay.io/biocontainers/samtools:1.19.2--h50ea8bc_1"
 
     input:
     tuple val(meta), path(bam)

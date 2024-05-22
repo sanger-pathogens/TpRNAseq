@@ -72,6 +72,7 @@ process PLOT_ANNOTATION_COVERAGE {
 
     publishDir "${params.outdir}/coverage/", mode: 'copy', overwrite: true
 
+    conda 'conda-forge::pandas=2.2.1 conda-forge::matplotlib=3.8.4'
     container 'quay.io/sangerpathogens/python_graphics:1.0.0'
 
     input:
