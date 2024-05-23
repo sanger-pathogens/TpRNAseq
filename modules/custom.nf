@@ -10,7 +10,7 @@ process COMBINE_FASTQS {
 
     input:
     //TODO This function assumes compressed reads as input. If not the case, the output extension will be wrong.
-    tuple val(meta), path(read_1_list), path(read_2_list)
+    tuple val(meta), path(read_1_list, stageAs: "input/*"), path(read_2_list, stageAs: "input/*")
 
     output:
     tuple val(meta), path(combined_fastqs),  emit: combined_reads
@@ -20,8 +20,8 @@ process COMBINE_FASTQS {
     combined_fastq_2 = "${meta.ID}_REP${meta.REP}_2.fastq.gz"
     combined_fastqs = [combined_fastq_1, combined_fastq_2]
     """
-    cat ${read_1_list.join(" ")} > ${combined_fastq_1}
-    cat ${read_2_list.join(" ")} > ${combined_fastq_2}
+    cat ${read_1_list} > ${combined_fastq_1}
+    cat ${read_2_list} > ${combined_fastq_2}
     """
 }
 
