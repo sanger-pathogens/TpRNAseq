@@ -96,7 +96,7 @@ workflow {
     )
 
     MAPPING(
-        PROCESS_READS.out.ch_trimmed_reads,
+        PROCESS_READS.out.ch_processed_reads,
         CREATE_INDEX.out.ch_bt2_index
     )
 

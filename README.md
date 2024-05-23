@@ -193,105 +193,81 @@ There are also a number of `nextflow`-specific options, which start with a singl
                                     ``" `          "----^"        Y.____x^"           
 ---------------------------------------------------------------------------------------
 
- Usage: 
+Typical pipeline command:
 
-      nextflow run main.nf --manifest <manifest> --annotation <gff> --reference <fasta> --library_strandedness [reverse] --outdir [./results]
+  nextflow run main.nf --manifest <manifest> --annotation <gff> --reference <fasta> --library_strandedness [reverse] --outdir [./results]
 
----------------------------------------------------------------------------------------
- Input 
-      --manifest
-            Path to a CSV manifest comprising 4 columns (ID, REP, R1, R2). ID is an arbitrary sample ID, REP describes replicate structure, R1 and R2 columns contain paths to *.fastq.gz files.
-            Default: none
-      --reference
-            Path to reference genome in FASTA format.
-            Default: none
-      --annotation
-            Path to genome annotation in GFF format.
-            Default: none
-      --library_strandedness
-            Strandedness of the RNAseq library. Options: reverse, forward, none.
-            Default: reverse
----------------------------------------------------------------------------------------
+Input Options
+  --manifest                      [string]  Path to a CSV manifest comprising 4 columns (ID, REP, R1, R2). ID is an arbitrary sample ID, REP describes replicate 
+                                            structure, R1 and R2 columns contain paths to *.fastq.gz files. 
+  --reference                     [string]  null
+  --annotation                    [string]  Path to genome annotation in GFF format.
+  --library_strandedness          [string]  Strandedness of the RNAseq library. Options: reverse, forward, none. (accepted: reverse, forward, none)
 
- Output 
-      --outdir
-            Path to an output directory (created if it doesn't exist).
-            Default: ./results
-      --keep_combined_fastqs
-            If true, publish the combined fastqs.
-            Default: false
-      --keep_sorted_bam
-            If true, keep the sorted bam file generated from mapping.
-            Default: false
-      --keep_dedup_bam
-            If true, keep the deduplicated bam file.
-            Default: false
-      --keep_filtered_bam
-            If true, keep filtered bam file.
-            Default: false
----------------------------------------------------------------------------------------
+Output Options
+  --outdir                        [string]  The output directory where the results will be saved. [default: ./results]
+  --keep_combined_fastqs          [boolean] Keep the combined fastqs.
+  --keep_trimmed_fastqs           [boolean] Keep the trimmed fastqs.
+  --keep_sorted_bam               [boolean] Keep the sorted bam files generated from mapping.
+  --keep_dedup_bam                [boolean] Keep the deduplicated bam files.
+  --keep_filtered_bam             [boolean] Keep filtered bam files.
 
- Data Combining 
-      --combine_fastqs
-            If true, combine fastqs at replicate level, based on sample identifiers provided in the manifest.
-            Default: false
-      --combine_rep
-            If true, combine fastqs at the sample level, based on the replicate structure described in the manifest.
-            Default: false
----------------------------------------------------------------------------------------
+Data Combining Options
+  --combine_fastqs                [boolean] Combine fastqs at replicate level, based on the replicate structure described in the manifest.
+  --combine_rep                   [boolean] Combine fastqs at sample level, based on sample identifiers provided in the manifest.
 
- QC 
-      --trimmer
-            Software to use for trimming. Options: fastp.
-            Default: fastp
-      --fastp_args
-            Options and arguments that will be supplied to fastp to modify QC behaviour.
-            Default: none
-      --multiqc_config
-            A multiqc configuration file (yml) that can be used to customise the multiqc behaviour.
-            See https://multiqc.info/docs/getting_started/config/.
-            Default: none
----------------------------------------------------------------------------------------
+QC Options
+  --skip_trim                     [boolean] Skip trimming.
+  --trimmer                       [string]  Software to use for trimming. (accepted: fastp) [default: fastp]
+  --fastp_args                    [string]  Options and arguments that will be supplied to fastp to modify QC behaviour.
+  --dedup                         [boolean] Remove duplicates (hopefully library prep artifacts) from bam file post-mapping.
 
- Mapping 
-      --bowtie2_args
-            Options and arguments that will be supplied to Bowtie2 to modify mapping behaviour.
-            Default: --local --very-sensitive-local --rdg 8,4 --rfg 8,4 --no-mixed
-      --dedup
-            If true, remove duplicates (hopefully library prep artifacts) from bam file.
-            Default: false
----------------------------------------------------------------------------------------
+Mapping Options
+  --bowtie2_args                  [string]  Options and arguments that will be supplied to Bowtie2 to modify mapping behaviour. [default: --local 
+                                            --very-sensitive-local --rdg 8,4 --rfg 8,4 --no-mixed] 
 
- Counting 
-      --htseq_args
-            Options and arguments that will be supplied to htseq-count to modify counting behaviour.
-            Default: --type gene --idattr locus_tag --nonunique none --secondary-alignments ignore
-      --samtools_filter_args
-            Arguments supplied to samtools to will be used to filter alignments of interest for counting. Acceptable arguments: -f or -F.
-            The default will only keep reads that aligned in proper pairs.
-            Default: -f 2
----------------------------------------------------------------------------------------
+Counting Options
+  --htseq_args                    [string]  Options and arguments that will be supplied to htseq-count to modify counting behaviour. [default: --type gene 
+                                            --idattr locus_tag --nonunique none --secondary-alignments ignore] 
+  --samtools_filter_args          [string]  Arguments supplied to samtools to will be used to filter alignments of interest for counting. [default: -f 
+                                            2] 
+  --annotate_feature_assignment   [boolean] Generate an annotated bam file where each read is assigned to the feature for which is has been counted.
 
- Coverage 
-      --strand_specific
-            If true, run strand-specific coverage analysis.
-            Default: false
-      --coverage_window_size
-            Size of window or step over which to compute cumulative per base coverage (output as a wig file).
-            Default: 100
-      --coverage_context
-            Provide context around the annotated region (coverage_window_size base pairs either side) in the coverage plot.
-            Default: 100
-      --pairwise
-            If true, generate pairwise sample comparison coverage plots.
-            Default: false
----------------------------------------------------------------------------------------
+Coverage Options
+  --strand_specific               [boolean] Run strand-specific coverage analysis.
+  --pairwise                      [boolean] Generate pairwise sample comparison coverage plots.
+  --coverage_window_size          [integer] Size of window or step over which to compute cumulative per base coverage (output as a wig file). [default: 
+                                            100] 
+  --coverage_context              [integer] Size of context around the annotated region (coverage_window_size base pairs either side) in the coverage plot. 
+                                            [default: 100] 
 
- Logging 
-      --monochrome_logs
-            Should logs appear in plain (non-coloured) ASCII
-            Default: false
----------------------------------------------------------------------------------------
+Resource Request Options
+  --max_cpus                      [integer] Maximum number of CPUs that can be requested for any single job. [default: 256]
+  --max_memory                    [string]  Maximum amount of memory that can be requested for any single job. [default: 2.9 TB]
+  --max_time                      [string]  Maximum amount of time that can be requested for any single job. [default: 30d]
+  --max_retries                   [integer] Maximum number of retries before ingnoring process failure. [default: 2]
+  --retry_strategy                [string]  Default retry strategy (used in the event that software fails to process data for an unexpected reason) 
+                                            [default: ignore] 
+  --submit_rate_limit             [string]  LSF-specific: Change the rate at which the pipeline will submit jobs on the cluster.
+  --queue_size                    [string]  LSF-specific: Maximum number of jobs pipeline will submit jobs on the cluster at any given time.
+
+Generic options
+  --help                          [boolean] Display help text.
+  --monochrome_logs               [boolean] Do not use coloured log outputs.
+  --multiqc_config                [string]  Custom config file to supply to MultiQC.
+  --tracedir                      [string]  Directory in which to save pipeline reporting information. [default: ./results/pipeline_info]
+
+Config Inheritance Options
+  --generic_config_base           [string]  Inherit configuration from a base URL. [default: 
+                                            https://raw.githubusercontent.com/sanger-pathogens/nextflow-commons/] 
+  --generic_config_version        [string]  Specify the version to inherit (will be appended to base URL). [default: master]
+  --generic_config                [string]  Override the above with a generic config URL (or file path).
+  --nf_core_custom_config_base    [string]  nf-core configuration base URL. [default: https://raw.githubusercontent.com/nf-core/configs/]
+  --nf_core_custom_config_version [string]  Specify the version of nf-core configs to inherit (will be appended to base URL). [default: master]
+  --nf_core_custom_config         [string]  Override the above with an nf-core config URL (or file path).
+  --input                         [string]  Ignore: Parameter inherited but not used by this pipeline.
+
+------------------------------------------------------
 ```
 
 ## Output
@@ -334,7 +310,7 @@ The content of these folders is described in more detail below. Note that output
 | `coverage/plots` | Contains per sample (or pairwise-sample if `--pairwise`) folders, containing strand-specific coverage plots for all `gene` level annotations in the given `--gff` and intergenic regions. |
 | `coverage/wig_{coverage_window_size}` | Contains `*.wig` files which summarize cumulative (per base) genome coverage over steps of the given `--coverage_window_size`. |
 | `coverage/wig_raw` | Contains `*.wig` files per base genome coverage. |
-| `fastp/trimmed_fastqs` | Contains trimmed reads in `*.fastq.gz` files.<br> Generated with `--keep_trimmed_fastqs`. |
+| `fastp/trimmed_fastqs` | Contains trimmed reads in `*.fastq.gz` files.<br> Generated with `--keep_trimmed_fastqs` and if not `--skip_trim`. |
 | `fastp/reports` | Contains fastp report files in `html` and `json` format. |
 | `fastp/fastqc` | Contains FASTQC data and reports for both trimmed and raw `*.fastq.gz` files. |
 | `picard` | Contains deduplicated BAM files.<br> Generated with `--keep_dedup_bam`. |

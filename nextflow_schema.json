@@ -95,6 +95,10 @@
       "description": "",
       "default": "",
       "properties": {
+        "skip_trim": {
+          "type": "boolean",
+          "description": "Skip trimming."
+        },
         "trimmer": {
           "type": "string",
           "default": "fastp",

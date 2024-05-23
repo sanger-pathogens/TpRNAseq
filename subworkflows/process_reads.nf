@@ -60,19 +60,25 @@ workflow PROCESS_READS {
     FASTQC_RAW.out.html.set { ch_fastqc_raw_html }
 
     // TRIM
-    //TODO Provide option if user doesn't want to trim!
-    FASTP(ch_reads)
-    FASTP.out.trimmed_reads.set { ch_trimmed_reads }
-    FASTP.out.fastp_reports.set { ch_fastp_reports }
+    if (!params.skip_trim) {
+        FASTP(ch_reads)
+        FASTP.out.trimmed_reads.set { ch_processed_reads }
+        FASTP.out.fastp_reports.set { ch_fastp_reports }
 
-    // QC
-    FASTQC_TRIM(ch_trimmed_reads)
-    FASTQC_TRIM.out.zip.set { ch_fastqc_trim_zip }
-    FASTQC_TRIM.out.html.set { ch_fastqc_trim_html }
+        // QC
+        FASTQC_TRIM(ch_processed_reads)
+        FASTQC_TRIM.out.zip.set { ch_fastqc_trim_zip }
+        FASTQC_TRIM.out.html.set { ch_fastqc_trim_html }
+    } else {
+        ch_reads.set { ch_processed_reads }
+        channel.empty().set { ch_fastp_reports }
+        channel.empty().set { ch_fastqc_trim_zip }
+        channel.empty().set { ch_fastqc_trim_html }
+    }
 
     emit:
     ch_reads
-    ch_trimmed_reads
+    ch_processed_reads
     ch_fastp_reports
     ch_fastqc_raw_zip
     ch_fastqc_raw_html
