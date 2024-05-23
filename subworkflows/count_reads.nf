@@ -11,6 +11,7 @@ include {
 workflow COUNT_READS {
     take:
     ch_reads_to_filter
+    annotation
 
     main:
     // FILTER BAM
@@ -33,7 +34,10 @@ workflow COUNT_READS {
         .set { ch_samtools_stats }
 
     // COUNTING
-    HTSEQ_COUNT(ch_filtered_reads)
+    ch_filtered_reads
+        .combine(annotation)
+        .set {htseq_input}
+    HTSEQ_COUNT(htseq_input)
     HTSEQ_COUNT.out.sample_feature_counts
         .map { ID, count_table -> count_table }
         .collect()

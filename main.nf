@@ -78,6 +78,7 @@ workflow {
 
     reference = file(params.reference, checkIfExists: true)
     ch_manifest = file(params.manifest)
+    Channel.fromPath(params.annotation, checkIfExists: true).set { annotation }
 
     CREATE_INDEX(
         reference
@@ -100,13 +101,15 @@ workflow {
     )
 
     COUNT_READS(
-        MAPPING.out.ch_reads_to_filter
+        MAPPING.out.ch_reads_to_filter,
+        annotation
     )
 
     if (params.strand_specific) {
         STRAND_SPECIFIC_COVERAGE(
             CREATE_INDEX.out.ch_ref_index,
-            MAPPING.out.ch_reads_to_filter
+            MAPPING.out.ch_reads_to_filter,
+            annotation
         )
     }
 

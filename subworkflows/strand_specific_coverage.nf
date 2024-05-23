@@ -16,10 +16,9 @@ workflow STRAND_SPECIFIC_COVERAGE {
     take:
     ch_ref_index
     ch_reads_to_filter
+    annotation
 
     main:
-    Channel.fromPath(params.annotation, checkIfExists: true).set { annotation }
-
     Channel.value([
         "plus",
         "-f 3 -e '(flag.reverse && flag.read1) || (flag.mreverse && flag.read2)'"

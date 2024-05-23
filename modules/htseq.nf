@@ -11,7 +11,7 @@ process HTSEQ_COUNT {
     publishDir "${params.outdir}/htseq", mode: 'copy', overwrite: true, pattern: "*_annotated.bam", enabled: params.annotate_feature_assignment
 
     input:
-    tuple val(meta), path(mapped_reads)
+    tuple val(meta), path(mapped_reads), path(annotation)
 
     output:
     tuple val(meta), path("${count_table}"),  emit: sample_feature_counts
@@ -53,7 +53,7 @@ process HTSEQ_COUNT {
         --counts_output ${count_table} \
         ${assignment_annotation_args} \
         ${mapped_reads} \
-        ${params.annotation}
+        ${annotation}
     """
 }
 
