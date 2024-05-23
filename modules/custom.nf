@@ -26,7 +26,7 @@ process COMBINE_FASTQS {
 }
 
 process COVERAGE_OVER_WINDOW {
-    tag "${meta.ID} : REP${meta.REP} - ${filter_name}"
+    tag "${meta.ID} : REP${meta.REP} - ${meta.filter}"
     label 'cpu_1'
     label 'mem_1'
     label 'time_30m'

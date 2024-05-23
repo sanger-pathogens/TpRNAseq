@@ -82,7 +82,7 @@ process INDEX_REF {
 }
 
 process SAMTOOLS_INDEX_BAM {
-    tag "${meta.ID} : REP${meta.REP}"
+    tag "${tag}"
     label 'cpu_2'
     label 'mem_100M'
     label 'time_1'
@@ -97,6 +97,7 @@ process SAMTOOLS_INDEX_BAM {
     tuple val(meta), path(bam), path(bam_index),  emit: bam_index
 
     script:
+    tag = meta.filter ? "${meta.ID} : REP${meta.REP} - ${meta.filter}" : "${meta.ID} : REP${meta.REP}"
     bam_index = "${bam}.bai"
     """
     samtools index -@ ${task.cpus} -b "${bam}"
