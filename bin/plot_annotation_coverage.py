@@ -52,7 +52,6 @@ def get_gene_name(ann_row: pd.DataFrame):
 def load_data(name_id: str, data_dir: Path):
     """Load wig files, extract the coverage column, normalise the coverage, collect into dfs for plus and minus strand"""
     plus_data, minus_data = [], []
-    #TODO We need to handle the summarization across replicates! Currently pipeline generates sample-specific data. Maybe we have to include the replicate structure in the manifest? That might make sense - rather than rely on file naming!
     for i, f in enumerate(data_dir.glob(f"{name_id}*plus.wig")):
         # Extract coverage (and label replicate R1, R2, etc.)
         p_data = pd.read_csv(f, sep="\t", header=None, names=['c', 'p', f'R{i+1}'])[f'R{i+1}']
@@ -236,8 +235,8 @@ def highlight_neighbouring_genes(ax1: matplotlib.axes.Axes, gene_and_neighbours:
         ax1.hlines(y=max_val, xmin=next[2], xmax=end, color=right_col, lw=10, alpha=0.5)
 
 def add_gene_arrows(ax1: matplotlib.axes.Axes, gene: list, region_size: tuple[int], fragment_size: int):
-    # TODO: Because the max value changes if we add something near the top of the plot, the ylim has changed from what it was previously.
-    # This causes next/prev gene annotations (if present) to appear below the (current) gene's arrow
+    # Because the max value changes if we add something near the top of the plot, the ylim has changed from what it was previously.
+    # This causes next/prev gene annotations (if present) to appear below the (current) gene's arrow, but the plot still looks good!
     max_val = ax1.get_ylim()[1]
     arrow_kwargs = {
             "width": max_val / 50,  # simply 50x less than the height of the plot
@@ -255,7 +254,7 @@ def add_plot_title(gene, fragment_size):
     if gene[1] == gene[0]:
         plt.title(f"{gene[1]} [{fragment_size} bp] {strand[gene[4]]}")
     else:
-            # if there's a readable gene name
+        # If there's a readable gene name
         plt.title(f"{gene[1]} ({gene[0]}) [{fragment_size} bp] {strand[gene[4]]}")
 
 def update_x_axis(ax1: matplotlib.axes.Axes, chr_len: int, region_size: tuple[int, int]):
@@ -277,7 +276,6 @@ def main():
     args = parse_args()
 
     # Parse wig files for given sample into dfs of normalised per base coverage count data
-    #TODO We should probably try to ensure that the code does not care how many samples are to be plotted - they are all processed independently and then iterated over!
     if args.sample_2 is None:
         save_path = args.outdir / f"{args.sample_1}"  #TODO Keep sample pair named subdirectory if we now give the user the choice of where to save? Probably not...
         p1, m1 = load_data(args.sample_1, args.wig_dir)

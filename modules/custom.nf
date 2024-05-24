@@ -83,7 +83,6 @@ process PLOT_ANNOTATION_COVERAGE {
 
     script:
     num_samples = sample_ids.size()
-    //TODO corresponding switch statement doesn't seem to work here!
     if (num_samples == 1) {
         sample_args = "--sample_1 \"${sample_ids[0]}\""
     } else if (num_samples == 2) {
