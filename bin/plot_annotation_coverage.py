@@ -105,9 +105,7 @@ def add_intergenic_region_annotations(ann_base: pd.DataFrame, min_length: int = 
     return ann
 
 def generate_gene_with_neighbours(ann: list) -> Generator:
-    # for i in range(len(ann)):
-    # Use line below for testing!
-    for i in range(5):
+    for i in range(len(ann)):
         logging.info(f"Processing {ann[i]}")
         ## Identifying the next and previous gene
         # Special case: Last annotation
