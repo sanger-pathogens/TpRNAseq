@@ -219,8 +219,10 @@ Output Options
   --keep_filtered_bam             [boolean] Keep filtered bam files.
 
 Data Combining Options
-  --combine_fastqs                [boolean] Combine fastqs at replicate level, based on the replicate structure described in the manifest.
-  --combine_rep                   [boolean] Combine fastqs at sample level, based on sample identifiers provided in the manifest.
+  --combine_level                 [string]  Combine fastqs at the specified level. `replicate` will combine fastqs that have the same sample and replicate 
+                                            identifiers in the manifest. `sample` will combine fastqs that have the same sample identifiers in the manifest 
+                                            (i.e. it will combine replicates of the same sample). `none` will perform no combining (sample identifiers must be 
+                                            unique in this case). (accepted: replicate, sample, none) [default: none] 
 
 QC Options
   --skip_trim                     [boolean] Skip trimming.
@@ -310,7 +312,7 @@ results/
 └── ref_index
 ```
 
-The content of these folders is described in more detail below. Note that output files will be sample-specific if `--combine_rep` is used and replicate-specific otherwise:
+The content of these folders is described in more detail below. Note that output files will be sample-specific if `--combine_level sample` is used, replicate-specific if `--combine_level replicate`, and input file-specific otherwise:
 | Directory / File | Description |
 | --- | ---|
 | `bowtie2_index` | Contains Bowtie2 index files (`.bt2.*`) for the given reference (`--reference`). |

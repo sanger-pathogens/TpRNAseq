@@ -33,11 +33,17 @@ workflow PROCESS_READS {
 
     main:
     // COMBINE FASTQS BY SAMPLE/REPLICATE
-    if (params.combine_fastqs) {
-        if (params.combine_rep) {
-            attrs_to_join = ["ID"]
-        } else {
-            attrs_to_join = ["ID", "REP"]
+    if (params.combine_level != "none") {
+        switch (params.combine_level) {
+            case "sample":
+                attrs_to_join = ["ID"]
+                break
+            case "replicate":
+                attrs_to_join = ["ID", "REP"]
+                break
+            default:
+                log.error "Invalid --combine_level argument: ${params.combine_level}"
+                exit 1
         }
 
         ch_reads
