@@ -105,7 +105,7 @@ workflow {
         annotation
     )
 
-    if (params.strand_specific) {
+    if (!params.skip_strand_specific_analysis) {
         STRAND_SPECIFIC_COVERAGE(
             CREATE_INDEX.out.ch_ref_index,
             MAPPING.out.ch_reads_to_filter,

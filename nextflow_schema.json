@@ -158,9 +158,9 @@
       "description": "",
       "default": "",
       "properties": {
-        "strand_specific": {
+        "skip_strand_specific_analysis": {
           "type": "boolean",
-          "description": "Run strand-specific coverage analysis."
+          "description": "Skip strand-specific coverage analysis."
         },
         "pairwise": {
           "type": "boolean",

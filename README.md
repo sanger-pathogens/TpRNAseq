@@ -240,7 +240,7 @@ Counting Options
   --annotate_feature_assignment   [boolean] Generate an annotated bam file where each read is assigned to the feature for which is has been counted.
 
 Coverage Options
-  --strand_specific               [boolean] Run strand-specific coverage analysis.
+  --skip_strand_specific_analysis [boolean] Skip strand-specific coverage analysis.
   --pairwise                      [boolean] Generate pairwise sample comparison coverage plots.
   --coverage_window_size          [integer] Size of window or step over which to compute cumulative per base coverage (output as a wig file). [default: 
                                             100] 
