@@ -98,25 +98,31 @@ The pipeline allows users to keep various intermediate files along the way. See 
     module load nextflow ISG/singularity
     ```
 
-2.  Clone the repo and change directory into it.
-
-3.  Start the pipeline:  
+2.  Start the pipeline:  
     For example input, please see [Generating a manifest](#generating-a-manifest).
 
     Example:
     ```bash
-    nextflow run main.nf --manifest test_data/manifest.csv --reference test_data/ref.fasta --annotation test_data/ref.gff --library_strandedness reverse
+    nextflow run sanger-pathogens/TpRNAseq \
+        --manifest test_data/manifest.csv \
+        --reference test_data/ref.fasta \
+        --annotation test_data/ref.gff \
+        --library_strandedness reverse
     ```
 
     It is good practice to submit a dedicated job for the nextflow master process (use the `oversubscribed` queue):
     ```bash
     bsub -o output.o -e error.e -q oversubscribed -R "select[mem>4000] rusage[mem=4000]" -M4000 \
-        nextflow run main.nf --manifest test_data/manifest.csv --reference test_data/ref.fasta --annotation test_data/ref.gff --library_strandedness reverse
+        nextflow run sanger-pathogens/TpRNAseq \
+            --manifest test_data/manifest.csv \
+            --reference test_data/ref.fasta \
+            --annotation test_data/ref.gff \
+            --library_strandedness reverse
     ```
 
     See [usage](#usage) for all available pipeline options.
 
-4.  Once your run has finished, check output in the directory supplied to the `--outdir` option (default `./results`). Remember to clean up any intermediate files. To do this (assuming no other pipelines are running from the current working directory) run:
+3.  Once your run has finished, check output in the directory supplied to the `--outdir` option (default `./results`). Remember to clean up any intermediate files. To do this (assuming no other pipelines are running from the current working directory) run:
 
     ```bash
     rm -rf work .nextflow*
