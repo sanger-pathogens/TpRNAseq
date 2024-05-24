@@ -37,6 +37,7 @@ workflow MAPPING {
         PICARD_MARKDUP.out.dedup_metrics.set { ch_dedup_metrics }
     } else {
         SAMTOOLS_SORT.out.sorted_reads.set { ch_reads_to_filter }
+        channel.empty().set { ch_dedup_metrics }
     }
 
     emit:
