@@ -25,6 +25,7 @@ process FILTER_BAM {
     samtools view -@ ${task.cpus} \
                   -b \
                   -h \
+                  -q ${params.min_mapping_quality} \
                   -o ${filtered_bam} \
                   ${filter_args} \
                   ${mapped_reads}

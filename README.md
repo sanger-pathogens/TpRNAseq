@@ -20,7 +20,7 @@ In its simplest usage, **Tp RNAseq** takes a sample manifest (CSV; see [Generati
 2. **Basic QC**: Adaptor removal and trimming of poor quality bases is performed by `fastp`. Quality is assessed with `FASTQC` pre- and post-fastp.
 3. **Mapping**: Reads are mapped to the given reference genome using `Bowtie2`. Bowtie2 index files are created if necessary.
 4. **Duplicate removal** (optional): Duplicate reads are removed using Picard's [MarkDuplicates](https://gatk.broadinstitute.org/hc/en-us/articles/360037052812-MarkDuplicates-Picard).
-5. **Read filtering**: Aligned reads are filtered with a user-defined filter (keeping all properly mapped read pairs by default). Additional filters are applied to generate strand-specific BAM files.
+5. **Read filtering**: Aligned reads are filtered with a user-defined filter (keeping all properly mapped read pairs by default). Additional filters are applied to generate strand-specific BAM files. A mapping quality (MAPQ score) filter can also be applied.
 6. **Read quantification per feature**: Performed on the user-defined filtered BAM by `htseq-count`. The generated count tables are combined across samples to generate a summary count table for convenient downstream analysis.
 7. **Coverage analysis**: Performed by `bedtools` and custom scripts on the strand-specific BAM files. Coverage plots will be generated per gene and intergenic region from the given annotation file (gff).
 
@@ -229,6 +229,7 @@ QC Options
   --trimmer                       [string]  Software to use for trimming. (accepted: fastp) [default: fastp]
   --fastp_args                    [string]  Options and arguments that will be supplied to fastp to modify QC behaviour.
   --dedup                         [boolean] Remove duplicates (hopefully library prep artifacts) from bam file post-mapping.
+  --min_mapping_quality           [integer] Remove alignments with MAPQ score smaller than given value. [default: 2]
 
 Mapping Options
   --bowtie2_args                  [string]  Options and arguments that will be supplied to Bowtie2 to modify mapping behaviour. [default: --local 
