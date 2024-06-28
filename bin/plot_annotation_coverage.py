@@ -270,6 +270,23 @@ def write_plot_to_file(save_path: Path, gene: list, i: int, num_ann: int):
     readable_gene_name = gene[1]
     plt.savefig(f"{save_path}/feature_{str(i).zfill(zfill_size)}_{readable_gene_name}.png")
 
+def contextualize_coordinates(start: int, end: int, chr_len: int):
+    if end < start:
+        end += chr_len
+    return start, end
+
+def contextualize_feature(feature: list, chr_len: int):
+    feature = feature.copy()
+    feature[2], feature[3] = contextualize_coordinates(feature[2], feature[3], chr_len)
+    return feature
+
+def contextualize_features(features: list, chr_len: int):
+    new_features = []
+    for feature in features:
+        new_features.append(contextualize_feature(feature), chr_len)
+    return new_features
+    
+
 def main():
     args = parse_args()
 
@@ -299,6 +316,7 @@ def main():
 
     # Loop over genes and plot
     gene_with_neighbours = generate_gene_with_neighbours(ann)
+    # contextualize_coordinates(gene_with_neighbours, chr_len, args.ext)
     for i, (prev, gene, next) in enumerate(gene_with_neighbours, start=1):
         region_size = get_region_size(gene, chr_len, args.ext)
         fragment_size = get_fragment_size(gene)
