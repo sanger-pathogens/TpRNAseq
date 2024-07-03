@@ -129,7 +129,7 @@ def generate_gene_with_neighbours(ann: list) -> Generator:
             j = 0
         yield ann[h], ann[i], ann[j]  # prev, gene, next
 
-def get_region_limits(gene: list, chr_len: int, ext: int = 100) -> tuple[int, int]:
+def get_region_limits(gene: list, ext: int = 100) -> tuple[int, int]:
     """
     Get the plotting limits for a regions corresponding to the given gene
 
@@ -141,8 +141,7 @@ def get_region_limits(gene: list, chr_len: int, ext: int = 100) -> tuple[int, in
     Returns:
         tuple[int, int]: Limits of the region (for plotting)
     """
-    start, end = max(0, gene[2] - ext - 1), min(gene[3] + ext, chr_len)
-    return start, end
+    return (gene[2] - ext), (gene[3] + ext)
 
 def get_plot_data(coverage_data: dict[str, pd.DataFrame], region_limits: tuple) -> dict[str, dict]:
     """
@@ -178,10 +177,8 @@ def get_chr_len(raw_coverage: pd.DataFrame) -> int:
 def get_fragment_size(gene: list) -> int:
     return gene[3] - gene[2]
 
-def get_region_size(gene: list, chr_len: int, ext: int = 100) -> int:
-    lower = 0 if (gene[2] - ext) < 0 else gene[2]
-    upper = chr_len if (gene[3] + ext) > chr_len else gene[3]
-    return upper - lower
+def get_region_size(region_limits: tuple[int, int]) -> int:
+    return region_limits[1] - region_limits[0]
 
 def plot_base_line_graph(plot_data: dict, region_limits: tuple) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
     fig, ax1 = plt.subplots()
@@ -272,7 +269,7 @@ def write_plot_to_file(save_path: Path, gene: list, i: int, num_ann: int):
 
 def contextualize_coordinates(start: int, end: int, chr_len: int):
     if end < start:
-        end += chr_len
+        end += chr_len + 1  #TODO + 1 because 1-based indexing
     return start, end
 
 def contextualize_feature(feature: list, chr_len: int):
@@ -318,9 +315,11 @@ def main():
     gene_with_neighbours = generate_gene_with_neighbours(ann)
     # contextualize_coordinates(gene_with_neighbours, chr_len, args.ext)
     for i, (prev, gene, next) in enumerate(gene_with_neighbours, start=1):
-        region_size = get_region_size(gene, chr_len, args.ext)
+        prev, gene, next = contextualize_features([prev, gene, next], chr_len)
+        region_limits = get_region_limits(gene, args.ext)
+        region_limits = contextualize_coordinates(*region_limits)
+        region_size = get_region_size(region_limits)
         fragment_size = get_fragment_size(gene)
-        region_limits = get_region_limits(gene, chr_len, args.ext)
         plot_data = get_plot_data(coverage_data, region_limits)
 
         # Plot comparison of coverage between the samples and strands
