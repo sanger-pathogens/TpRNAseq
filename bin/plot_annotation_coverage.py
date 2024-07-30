@@ -49,16 +49,19 @@ def get_gene_name(ann_row: pd.DataFrame):
         return lt, lt
 
 
-def load_data(name_id: str, data_dir: Path, normalize: bool = False):
+def load_data(name_id: str, data_dir: Path, normalize: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load wig files, extract the coverage column, normalise the coverage, collect into dfs for plus and minus strand"""
     plus_data, minus_data = [], []
-    for i, f in enumerate(data_dir.glob(f"{name_id}*plus.wig")):
+    for i, f in enumerate(data_dir.glob(f"{name_id}*plus.wig"), start=1):
         # Extract coverage (and label replicate R1, R2, etc.)
-        p_data = pd.read_csv(f, sep="\t", header=None, names=['c', 'p', f'R{i+1}'])[f'R{i+1}']
+        p_data = pd.read_csv(f, sep="\t", header=None, names=['chrom', 'pos', 'cov'])['cov']
         #TODO fix potential bug if replacing plus with minus in full path (rather than just filename)!
-        m_data = pd.read_csv(str(f).replace('plus', 'minus'), sep="\t", header=None, names=['c', 'p', f'R{i+1}'])[f'R{i+1}']
+        m_data = pd.read_csv(str(f).replace('plus', 'minus'), sep="\t", header=None, names=['chrom', 'pos', 'cov'])['cov']
+        p_data.name = f'rep{i}'
+        m_data.name = f'rep{i}'
         # Normalise
         if normalize:
+            #TODO Check if this normalization is appropriate!
             nf = p_data.sum() + m_data.sum()
             plus_data.append(1e6 * p_data / nf)
             minus_data.append(1e6 * m_data / nf)
