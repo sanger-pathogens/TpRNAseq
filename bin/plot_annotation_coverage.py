@@ -49,7 +49,7 @@ def get_gene_name(ann_row: pd.DataFrame):
         return lt, lt
 
 
-def load_data(name_id: str, data_dir: Path):
+def load_data(name_id: str, data_dir: Path, normalize: bool = False):
     """Load wig files, extract the coverage column, normalise the coverage, collect into dfs for plus and minus strand"""
     plus_data, minus_data = [], []
     for i, f in enumerate(data_dir.glob(f"{name_id}*plus.wig")):
@@ -58,9 +58,13 @@ def load_data(name_id: str, data_dir: Path):
         #TODO fix potential bug if replacing plus with minus in full path (rather than just filename)!
         m_data = pd.read_csv(str(f).replace('plus', 'minus'), sep="\t", header=None, names=['c', 'p', f'R{i+1}'])[f'R{i+1}']
         # Normalise
-        nf = p_data.sum() + m_data.sum()
-        plus_data.append(1e6 * p_data / nf)
-        minus_data.append(1e6 * m_data / nf)
+        if normalize:
+            nf = p_data.sum() + m_data.sum()
+            plus_data.append(1e6 * p_data / nf)
+            minus_data.append(1e6 * m_data / nf)
+        else:
+            plus_data.append(p_data)
+            minus_data.append(m_data)
     return pd.concat(plus_data, axis=1), pd.concat(minus_data, axis=1)
 
 def get_gene_annotations(gff: Path) -> pd.DataFrame:
@@ -280,7 +284,7 @@ def contextualize_feature(feature: list, chr_len: int):
 def contextualize_features(features: list, chr_len: int):
     new_features = []
     for feature in features:
-        new_features.append(contextualize_feature(feature), chr_len)
+        new_features.append(contextualize_feature(feature, chr_len))
     return new_features
     
 
@@ -316,10 +320,15 @@ def main():
     # contextualize_coordinates(gene_with_neighbours, chr_len, args.ext)
     for i, (prev, gene, next) in enumerate(gene_with_neighbours, start=1):
         prev, gene, next = contextualize_features([prev, gene, next], chr_len)
+        print(prev, gene, next)
         region_limits = get_region_limits(gene, args.ext)
-        region_limits = contextualize_coordinates(*region_limits)
+        print(region_limits)
+        region_limits = contextualize_coordinates(*region_limits, chr_len)
+        print(region_limits)
         region_size = get_region_size(region_limits)
+        print(region_size)
         fragment_size = get_fragment_size(gene)
+        print(fragment_size)
         plot_data = get_plot_data(coverage_data, region_limits)
 
         # Plot comparison of coverage between the samples and strands
