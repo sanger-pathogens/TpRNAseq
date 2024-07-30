@@ -304,6 +304,7 @@ def main():
         }
     else:
         save_path = args.outdir / f"{args.sample_1}_{args.sample_2}"  #TODO Keep sample pair named subdirectory if we now give the user the choice of where to save? Probably not...
+        p1, m1 = load_data(args.sample_1, args.wig_dir)
         p2, m2 = load_data(args.sample_2, args.wig_dir)
         coverage_data = {
             'sense_1': p1,
