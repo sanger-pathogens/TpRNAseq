@@ -277,8 +277,13 @@ def write_plot_to_file(save_path: Path, gene: list, i: int, num_ann: int):
     plt.savefig(f"{save_path}/feature_{str(i).zfill(zfill_size)}_{readable_gene_name}.png")
 
 def contextualize_coordinates(start: int, end: int, chr_len: int):
+    # Account for region where end overlaps with chromosome end
+    # TODO This will never happen if we are simply extending the chromosome with context...
     if end < start:
         end += chr_len + 1  #TODO + 1 because 1-based indexing
+    # Account for region where start overlaps with chromosome end
+    if start < 0:
+        start += chr_len + 1  #TODO + 1 because 1-based indexing
     return start, end
 
 def contextualize_feature(feature: list, chr_len: int):
