@@ -88,7 +88,8 @@ def add_intergenic_region_annotations(ann_base: pd.DataFrame, min_length: int = 
         prev_name = get_gene_name(ann_base.iloc[idx-1])
         # If previous "gene" entry in GFF ends more than min_length bases before the current entry start
         # Determines the minimum length of integergenic region to be annotated
-        # TODO Has the first IG region been accounted for in this code?
+        # TODO Has the first IG region been accounted for in this code? Not really, in the sense that if a IG region exists between last and first gene, and (start of the first gene - min_length) < 0 then no matter what the end of the previous gene is, the if statement will never be satisfied and the IG region will never be added. BUT... it is added in an ad hoc manner at the end of this function!
+        # Assume no overlapping genes with start of first gene. Note that normally the start of coordinates should fall in the intergenic region before the replication site (origin or replication - ori? or DnaA gene?).
         if ann_base.iloc[idx-1]["end"] < ann_base.iloc[idx]["start"] - min_length:
             # Then add an intergenic annotation
             ann.append([
@@ -101,7 +102,7 @@ def add_intergenic_region_annotations(ann_base: pd.DataFrame, min_length: int = 
             IG_idx += 1
         # Append the current entry annotation
         ann.append([name[1], name[0], ann_base.iloc[idx]["start"], ann_base.iloc[idx]["end"], ann_base.iloc[idx]["strand"]])
-    # Append the last IG region
+    # Append the last IG region (assumes there is one)
     ann.append([
         f"IG_{IG_idx}",
         f"Inter_{name[0]}:{get_gene_name(ann_base.iloc[0])[0]}",
@@ -113,8 +114,7 @@ def add_intergenic_region_annotations(ann_base: pd.DataFrame, min_length: int = 
 
 def generate_gene_with_neighbours(ann: list) -> Generator:
     for i in range(len(ann)):
-        logging.info(f"Processing {ann[i]}")
-        ## Identifying the next and previous gene
+        ## Identifying the previous (h) and next (j) gene
         # Special case: Last annotation
         if i == len(ann) - 1:
             # Since T pallidum genome is circular, next gene is first gene
@@ -128,7 +128,7 @@ def generate_gene_with_neighbours(ann: list) -> Generator:
             h -= 1
         # If next "gene" would be an intergenic region:
         if ann[j][4] == '0':
-            # Add again, to get true previous gene
+            # Add again, to get true next gene
             j += 1
         # If the next "gene" would go out of the range, i.e. equal to len(ann), next gene = first gene
         # I think this should be handled by the special case above.
@@ -185,6 +185,7 @@ def get_fragment_size(gene: list) -> int:
     return gene[3] - gene[2]
 
 def get_region_size(region_limits: tuple[int, int]) -> int:
+    """Size of the region that is shown in a plot"""
     return region_limits[1] - region_limits[0]
 
 def plot_base_line_graph(plot_data: dict, region_limits: tuple) -> tuple[matplotlib.figure.Figure, matplotlib.axes.Axes]:
