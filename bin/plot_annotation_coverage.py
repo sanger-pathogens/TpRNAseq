@@ -182,7 +182,8 @@ def get_chr_len(raw_coverage: pd.DataFrame) -> int:
     return len(raw_coverage)
 
 def get_fragment_size(gene: list) -> int:
-    return gene[3] - gene[2]
+    """Size of a gene or feature"""
+    return gene[3] - gene[2] + 1  # + 1 because GFF coordinates are inclusive
 
 def get_region_size(region_limits: tuple[int, int]) -> int:
     """Size of the region that is shown in a plot"""
