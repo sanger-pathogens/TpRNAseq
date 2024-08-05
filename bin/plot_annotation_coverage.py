@@ -70,6 +70,22 @@ def load_data(name_id: str, data_dir: Path, normalize: bool = False) -> tuple[pd
             minus_data.append(m_data)
     return pd.concat(plus_data, axis=1), pd.concat(minus_data, axis=1)
 
+def add_coverage_data_context(coverage_data: dict[str, pd.DataFrame], ext: int):
+    extended_coverage_data = {}
+    for k, v in coverage_data.items():
+        chr_len = len(v)
+        v = v.reindex(range(1, chr_len + 1))
+        print(v)
+        lower_context = v[(chr_len - ext):(chr_len + 1)]
+        lower_context = lower_context.reindex(range(-1 - ext, 0)) 
+        upper_context = v[0:ext]
+        upper_context.reindex(range(chr_len + 1, chr_len + ext + 1))
+        extended_coverage_data[k] = pd.concat([lower_context, v, upper_context])
+        print(extended_coverage_data[k][0:102])
+        # print(extended_coverage_data[k][-101])
+        # print(extended_coverage_data[k][1139616:1139717])
+
+
 def get_gene_annotations(gff: Path) -> pd.DataFrame:
     ann_base = pd.read_csv(gff, sep="\t", skiprows=3, header=None)
     # Get gene entries from GFF
@@ -111,6 +127,19 @@ def add_intergenic_region_annotations(ann_base: pd.DataFrame, min_length: int = 
         '0'
     ])
     return ann
+
+class feature:
+    """Feature in genome, could be gene or intergenic region"""
+    def __init__(self, id, name, start, end, strand, tags, prev, next):
+        self.id
+        self.name
+        self.start
+        self.end
+        self.strand
+        self.tags
+        self.prev_gene
+        self.next_gene
+
 
 def generate_gene_with_neighbours(ann: list) -> Generator:
     for i in range(len(ann)):
@@ -215,11 +244,8 @@ def highlight_neighbouring_genes(ax1: matplotlib.axes.Axes, gene_and_neighbours:
     right_col = 'r' if next[4] == '-' else 'b'
     max_val = ax1.get_ylim()[1]
     start, end = ax1.get_xlim()
-    # left_box = coordinates of end of previous feature
-    # but if start extended region is -ve (i.e. start of a gene minus ext is negative; essentially only affects first gene)
-    # then subtract chr_len from end of previous gene to give left_box
-    # Note: this can make left_box negative (for first gene). However, the start of the first gene was set to a minimum of 0 earlier, so this will never happen.
-    left_box = (prev[3] - chr_len) if start <= 0 else prev[3]
+    # left_box = coordinate of end of previous feature
+    left_box = prev[3]
     # Draw horizontal lines at top of plot indicating whether next/prev feature is on + or - strand
     # Given that we extend the genes by 100bp, this handles the possibility of the extended region overlapping with the (unextended) range of the previous or next gene.
     if left_box > start:
@@ -322,24 +348,30 @@ def main():
     os.makedirs(save_path, exist_ok=True)
     chr_len = get_chr_len(p1)
 
+    add_coverage_data_context(coverage_data, 100)
+
     # Parse GFF
     ann_base = get_gene_annotations(args.gff)
     ann = add_intergenic_region_annotations(ann_base, args.min_intergenic)
+    # print(ann[-2], ann[-1], ann[0])
 
     # Loop over genes and plot
     gene_with_neighbours = generate_gene_with_neighbours(ann)
+    gene_with_neighbours = list(gene_with_neighbours)
+    print(gene_with_neighbours[0])
     # contextualize_coordinates(gene_with_neighbours, chr_len, args.ext)
     for i, (prev, gene, next) in enumerate(gene_with_neighbours, start=1):
+        logging.info(f"Processing {gene}")
         prev, gene, next = contextualize_features([prev, gene, next], chr_len)
         print(prev, gene, next)
         region_limits = get_region_limits(gene, args.ext)
-        print(region_limits)
+        # print(region_limits)
         region_limits = contextualize_coordinates(*region_limits, chr_len)
         print(region_limits)
         region_size = get_region_size(region_limits)
-        print(region_size)
+        # print(region_size)
         fragment_size = get_fragment_size(gene)
-        print(fragment_size)
+        # print(fragment_size)
         plot_data = get_plot_data(coverage_data, region_limits)
 
         # Plot comparison of coverage between the samples and strands
@@ -353,6 +385,7 @@ def main():
         write_plot_to_file(save_path, gene, i, num_ann=len(ann))
         plt.clf()
         plt.close('all')
+        break
 
 if __name__ == "__main__":
     main()
