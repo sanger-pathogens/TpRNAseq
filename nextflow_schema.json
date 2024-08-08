@@ -110,6 +110,11 @@
         "dedup": {
           "type": "boolean",
           "description": "Remove duplicates (hopefully library prep artifacts) from bam file post-mapping."
+        },
+        "min_mapping_quality": {
+          "type": "integer",
+          "default": 2,
+          "description": "Remove alignments with MAPQ score smaller than given value."
         }
       }
     },
