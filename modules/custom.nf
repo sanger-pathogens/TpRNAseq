@@ -84,7 +84,7 @@ process PLOT_ANNOTATION_COVERAGE {
     script:
     num_samples = sample_ids.size()
     if (num_samples == 1) {
-        sample_args = "--sample_1 \"${sample_ids[0]}\""
+        sample_args = "--sample \"${sample_ids[0]}\""
     } else if (num_samples == 2) {
         sample_args = "--sample_1 \"${sample_ids[0]}\" --sample_2 \"${sample_ids[1]}\""
     } else {

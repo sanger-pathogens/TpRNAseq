@@ -334,6 +334,9 @@ The content of these folders is described in more detail below. Note that output
 | `ref_index` | Contains a copy of the reference `fasta` and fasta index `*.fai`.<br> Generated only if a reference `*.fai` could not be detected in the same directory as the input reference. |
 | `pipeline_info` | Contains an execution report (`html`), execution trace (`tsv`) - useful for identifying failed processes, and a pipeline flowchart (`svg`). |
 
+## Known Issues
+
+- The `--pairwise` option will fail to generate pairwise coverage plots - this functionality will be fixed in a future release. 
 
 ## Credits
 
