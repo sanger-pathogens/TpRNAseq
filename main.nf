@@ -40,7 +40,7 @@ if (params.help) {
     println "  --featurecounts_args      Arguments passed to featureCounts (used only if count_method=featurecounts)"
     println ""
     println "Examples:"
-    println "  nextflow run main.nf --count_method featurecounts --featurecounts_args \"-T 4 -p -B -Q 10 -M --fraction\""
+    println "  nextflow run main.nf --count_method featurecounts --featurecounts_args \"-T 4 -p -B -C -M --fraction\""
 
     exit(0)
 }
