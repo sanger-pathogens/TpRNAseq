@@ -33,6 +33,15 @@ log.info logo
 
 if (params.help) {
     log.info paramsHelp("nextflow run main.nf --manifest <manifest> --annotation <gff> --reference <fasta> --library_strandedness [reverse] --outdir [./results]")
+
+    println ""
+    println "COUNTING OPTIONS:"
+    println "  --count_method            Choose counting tool: 'htseq' (default) or 'featurecounts'"
+    println "  --featurecounts_args      Arguments passed to featureCounts (used only if count_method=featurecounts)"
+    println ""
+    println "Examples:"
+    println "  nextflow run main.nf --count_method featurecounts --featurecounts_args \"-T 4 -p -B -Q 10 -M --fraction\""
+
     exit(0)
 }
 
