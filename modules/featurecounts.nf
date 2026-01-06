@@ -29,8 +29,8 @@ process FEATURECOUNTS_COUNT {
     tuple val(meta), path(mapped_reads), path(annotation)
 
     output:
-    tuple val(meta), path("${count_table}"),  emit: sample_feature_counts
-    tuple val(meta), path("${annotated_bam}"), optional: true,  emit: annotated_bam
+    tuple val(meta), path(count_table),  emit: sample_feature_counts
+    tuple val(meta), path(annotated_bam), optional: true,  emit: annotated_bam
 
     script:
     output_stem = "${meta.ID}_REP${meta.REP}"
