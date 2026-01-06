@@ -3,7 +3,7 @@ process FEATURECOUNTS_COUNT {
     tag "${meta.ID} : REP${meta.REP}"
     label 'cpu_1'
     label 'time_1'
-    memory '4 GB'
+    memory 'mem_16'
 
     conda "bioconda::subread=2.1.1"
     container 'quay.io/biocontainers/subread:2.1.1--h577a1d6_0'
@@ -64,6 +64,8 @@ process FEATURECOUNTS_COUNT {
             -a ${annotation} \\
             -o ${count_table} \\
             -s ${fc_strandedness} \\
+            -T ${task.cpus} \\
+
             ${params.featurecounts_args} \\
             ${mapped_reads}
         # cp ${mapped_reads} ${annotated_bam}
@@ -81,10 +83,9 @@ process FEATURECOUNTS_COUNT {
 }
 
 process COMBINE_FEATURECOUNTS {
-    shell '/bin/bash'
     label 'cpu_1'
     label 'time_1'
-    memory '4 GB'
+    memory 'mem_16'
 
     publishDir "${params.outdir}/featurecounts", mode: 'copy', overwrite: true
 
