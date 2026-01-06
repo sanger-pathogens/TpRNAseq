@@ -136,8 +136,6 @@ process COMBINE_FEATURECOUNTS {
     printf '\n'
     done >> "${counts_table}"
 
-    # Cleanup
-    rm genes.tmp
     """
 }
  
