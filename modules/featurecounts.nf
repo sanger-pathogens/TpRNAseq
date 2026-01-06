@@ -68,7 +68,7 @@ process FEATURECOUNTS_COUNT {
 
             ${params.featurecounts_args} \\
             ${mapped_reads}
-        # cp ${mapped_reads} ${annotated_bam}
+        cp ${mapped_reads} ${annotated_bam}
         """
     } else {
         """
