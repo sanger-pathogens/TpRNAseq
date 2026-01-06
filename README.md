@@ -158,7 +158,7 @@ Manifests supplied as an argument to `--manifest`, should be of of the following
 
 ```console
 ID,REP,R1,R2
-sample,1,./test_data/inputs/sample_rep1_1.fastq.gz,./test_data/inputs/sample_rep2_2.fastq.gz
+sample,1,./test_data/inputs/sample_rep1_1.fastq.gz,./test_data/inputs/sample_rep1_2.fastq.gz
 sample,2,./test_data/inputs/sample_rep2_1.fastq.gz,./test_data/inputs/sample_rep2_2.fastq.gz
 ```
 

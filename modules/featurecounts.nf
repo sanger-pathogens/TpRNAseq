@@ -2,8 +2,8 @@
 process FEATURECOUNTS_COUNT {
     tag "${meta.ID} : REP${meta.REP}"
     label 'cpu_1'
-    label 'mem_100M'
     label 'time_1'
+    memory '4 GB'
 
     conda "bioconda::subread=2.1.1"
     container 'quay.io/biocontainers/subread:2.1.1--h577a1d6_0'
@@ -81,11 +81,12 @@ process FEATURECOUNTS_COUNT {
 }
 
 process COMBINE_FEATURECOUNTS {
+    shell '/bin/bash'
     label 'cpu_1'
-    label 'mem_100M'
     label 'time_1'
+    memory '4 GB'
 
-    publishDir "${params.outdir}/featurecounts", mode: 'copy', overwrite: true, pattern: "gene_counts.tsv"
+    publishDir "${params.outdir}/featurecounts", mode: 'copy', overwrite: true
 
     container 'ubuntu:22.04'
 
@@ -93,16 +94,21 @@ process COMBINE_FEATURECOUNTS {
     path(count_tables)
 
     output:
-    path("${counts_table}"),  emit: all_feature_counts
+    path("gene_counts.tsv"),  emit: all_feature_counts
 
     script:
+    counts_table = "gene_counts.tsv"
     
     """
-    files=( *.tsv )
-
+    files=( *_featurecounts.tsv )
     # Extract gene list from first count file (column 1)
     cut -f1 "\${files[0]}" > genes.tmp
     
+    if [ \${#files[@]} -eq 0 ]; then
+      echo "No *_featurecounts.tsv files found" >&2
+      exit 1
+    fi
+
     # Extract sample names from filenames
     samples=()
     for f in "\${files[@]}"; do
@@ -112,18 +118,22 @@ process COMBINE_FEATURECOUNTS {
     done
     
     # Write output
-    printf "feature_id" > gene_counts.tsv
+    printf "feature_id" > ${counts_table}
     
     for s in "\${samples[@]}"; do
-        printf "\\t%s" "\$s" >> gene_counts.tsv
+        printf "\\t%s" "\$s" >> ${counts_table}
     done
-    printf "\\n" >> gene_counts.tsv
+    printf "\\n" >> ${counts_table}
 
     # Build table
-    paste \\
-        <(cut -f1 \"${files[0]}") \
-        \$(printf "<(cut -f7 \"%s\") " "\${files[@]}") \
-        >> gene_counts.tsv
+    cut -f1 "\${files[0]}" | grep -v '^#' | tail -n +2 | while IFS= read -r gene; do
+    printf '%s' "\$gene"
+    for f in "\${files[@]}"; do
+        count=\$(awk -F'\t' -v g="\$gene" '\$1==g && NR>1 {print \$7; exit}' "\$f")
+        printf '\t%s' "\${count:-0}"
+    done
+    printf '\n'
+    done >> "${counts_table}"
 
     # Cleanup
     rm genes.tmp
