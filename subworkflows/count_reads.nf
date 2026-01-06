@@ -54,11 +54,11 @@ workflow COUNT_READS {
 
         COMBINE_FEATURECOUNTS(ch_count_tables)
     
-    } else if (params.count_method == 'htseq' || !params.count_method) {
+    } else if (params.count_method == 'htseq') {
     
         HTSEQ_COUNT(ch_count_input)
         HTSEQ_COUNT.out.sample_feature_counts
-            .map { ID, count_table -> count_table }
+            .map { meta, count_table -> count_table }
             .collect()
             .set { ch_count_tables }
 
