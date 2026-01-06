@@ -3,7 +3,7 @@ process FEATURECOUNTS_COUNT {
     tag "${meta.ID} : REP${meta.REP}"
     label 'cpu_1'
     label 'time_1'
-    memory 'mem_16'
+    label 'mem_16'
 
     conda "bioconda::subread=2.1.1"
     container 'quay.io/biocontainers/subread:2.1.1--h577a1d6_0'
@@ -85,7 +85,7 @@ process FEATURECOUNTS_COUNT {
 process COMBINE_FEATURECOUNTS {
     label 'cpu_1'
     label 'time_1'
-    memory 'mem_16'
+    label 'mem_16'
 
     publishDir "${params.outdir}/featurecounts", mode: 'copy', overwrite: true
 

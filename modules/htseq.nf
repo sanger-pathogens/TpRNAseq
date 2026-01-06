@@ -2,7 +2,7 @@ process HTSEQ_COUNT {
     tag "${meta.ID} : REP${meta.REP}"
     label 'cpu_1'
     label 'time_1'
-    memory 'mem_16'
+    label 'mem_16'
 
     conda "bioconda::htseq=2.0.5"
     container 'quay.io/biocontainers/htseq:2.0.5--py310h5aa3a86_0'
@@ -60,7 +60,7 @@ process HTSEQ_COUNT {
 process COMBINE_HTSEQ {
     label 'cpu_1'
     label 'time_1'
-    memory 'mem_16'
+    label 'mem_16'
 
     publishDir "${params.outdir}/htseq", mode: 'copy', overwrite: true
 
