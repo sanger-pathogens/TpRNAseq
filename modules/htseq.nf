@@ -70,7 +70,7 @@ process COMBINE_HTSEQ {
     path(count_tables)
 
     output:
-    path("gene_counts.tsv"),  emit: all_feature_counts
+    path(counts_table),  emit: all_feature_counts
 
     script:
     counts_table = "gene_counts.tsv"
