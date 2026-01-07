@@ -65,7 +65,6 @@ process FEATURECOUNTS_COUNT {
             -o ${count_table} \\
             -s ${fc_strandedness} \\
             -T ${task.cpus} \\
-
             ${params.featurecounts_args} \\
             ${mapped_reads}
         cp ${mapped_reads} ${annotated_bam}
@@ -76,6 +75,7 @@ process FEATURECOUNTS_COUNT {
             -a ${annotation} \\
             -o ${count_table} \\
             -s ${fc_strandedness} \\
+            -T ${task.cpus} \\
             ${params.featurecounts_args} \\
             ${mapped_reads}
         """

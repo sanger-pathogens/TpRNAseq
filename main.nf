@@ -33,15 +33,6 @@ log.info logo
 
 if (params.help) {
     log.info paramsHelp("nextflow run main.nf --manifest <manifest> --annotation <gff> --reference <fasta> --library_strandedness [reverse] --outdir [./results]")
-
-    println ""
-    println "COUNTING OPTIONS:"
-    println "  --count_method            Choose counting tool: 'htseq' (default) or 'featurecounts'"
-    println "  --featurecounts_args      Arguments passed to featureCounts (used only if count_method=featurecounts)"
-    println ""
-    println "Examples:"
-    println "  nextflow run main.nf --count_method featurecounts --featurecounts_args \"-T 4 -p -B -C -M --fraction\""
-
     exit(0)
 }
 
@@ -65,7 +56,7 @@ def validate_custom_params(params, log, monochrome_logs) {
     errors += ParamValidator.validate_no_invalid_args("--bowtie2_args", params.bowtie2_args, ["-x", "-1", "-2", "-p", "-S"], log)
     errors += ParamValidator.validate_only_valid_args("--samtools_filter_args", params.samtools_filter_args, ["-f", "-F", "--rf", "-G", "-e"], log)
     errors += ParamValidator.validate_no_invalid_args("--htseq_args", params.htseq_args, ["--samout", "--samout-format", "--order", "--stranded", "--counts_output"], log)
-    errors += ParamValidator.validate_no_invalid_args("--featurecounts_args", params.featurecounts_args, ["-s", "--strandness"], log)
+    errors += ParamValidator.validate_no_invalid_args("--featurecounts_args", params.featurecounts_args, ["-s", "--strandness", "-o", "--output", "-a", "--annotation", "-T", "--threads"], log)
     log.info("${colors.reset}")
 
     if (errors > 0) {
