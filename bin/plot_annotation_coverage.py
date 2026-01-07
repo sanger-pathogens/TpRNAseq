@@ -71,7 +71,7 @@ def load_data(sample_id: str, data_dir: Path, normalize: bool = False) -> tuple[
 
 
 def get_gene_annotations(gff: Path) -> pd.DataFrame:
-    ann_base = pd.read_csv(gff, sep="\t", skiprows=3, header=None)
+    ann_base = pd.read_csv(gff, sep="\t", header=None, comment="#", dtype={0: "string"} )
     # Get gene entries from GFF
     ann_base = ann_base[ann_base[2] == 'gene']
     # Subset "start", "end", "strand", "tags"
