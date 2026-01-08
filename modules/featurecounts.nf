@@ -103,7 +103,6 @@ process COMBINE_FEATURECOUNTS {
     """
     files=( *_featurecounts.tsv )
     # Extract gene list from first count file (column 1)
-    cut -f1 "\${files[0]}" > genes.tmp
     
     if [ \${#files[@]} -eq 0 ]; then
       echo "No *_featurecounts.tsv files found" >&2
