@@ -225,7 +225,7 @@
         "max_retries": {
           "type": "integer",
           "default": 2,
-          "description": "Maximum number of retries before ingnoring process failure."
+          "description": "Maximum number of retries before ignoring process failure."
         },
         "retry_strategy": {
           "type": "string",
