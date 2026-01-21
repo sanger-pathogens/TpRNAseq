@@ -137,6 +137,17 @@
       "description": "",
       "default": "",
       "properties": {
+        "count_method": {
+          "type": "string",
+          "enum": ["htseq", "featurecounts"],
+          "default": "htseq",
+          "description": "Method to use for read counting."
+        },
+        "featurecounts_args": {
+          "type": "string",
+          "default": "-p -B -C",
+          "description": "Options and arguments that will be supplied to featureCounts to modify counting behaviour."
+        },
         "htseq_args": {
           "type": "string",
           "default": "--type gene --idattr locus_tag --nonunique none --secondary-alignments ignore",
@@ -214,7 +225,7 @@
         "max_retries": {
           "type": "integer",
           "default": 2,
-          "description": "Maximum number of retries before ingnoring process failure."
+          "description": "Maximum number of retries before ignoring process failure."
         },
         "retry_strategy": {
           "type": "string",
