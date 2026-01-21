@@ -134,7 +134,7 @@ The pipeline allows users to keep various intermediate files along the way. See 
 
 This pipeline should be compatible with most HPC clusters, but will not have the necessary configuration files for those clusters hosted in this repository.
 
-Nevertheless, your insitution may support an [nf-core configuration profile](https://github.com/nf-core/configs/tree/master/conf). Documentation for the use of these profiles can be found [here](https://github.com/nf-core/configs?tab=readme-ov-file#documentation).
+Nevertheless, your institution may support an [nf-core configuration profile](https://github.com/nf-core/configs/tree/master/conf). Documentation for the use of these profiles can be found [here](https://github.com/nf-core/configs?tab=readme-ov-file#documentation).
 
 These profiles are supported out-of-the-box by this pipeline. You simply have to run the pipeline with the relevant profile. For example, to run the pipeline on the Cambridge HPC, run with `-profile cambridge`.
 
@@ -176,9 +176,9 @@ There are also a number of `nextflow`-specific options, which start with a singl
 ---------------------------------------------------------------------------------------
 
 
-88888888888            8888888b.  888b    888        d8888                           
-    888                888   Y88b 8888b   888       d88888                           
-    888                888    888 88888b  888      d88P888                           
+88888888888            8888888b.  888b    888        d8888
+    888                888   Y88b 8888b   888       d88888
+    888                888    888 88888b  888      d88P888
     888  88888b.       888   d88P 888Y88b 888     d88P 888 .d8888b   .d88b.   .d88888
     888  888 "88b      8888888P"  888 Y88b888    d88P  888 88K      d8P  Y8b d88" 888
     888  888  888      888 T88b   888  Y88888   d88P   888 "Y8888b. 88888888 888  888
@@ -187,16 +187,16 @@ There are also a number of `nextflow`-specific options, which start with a singl
          888                                                                      888
          888                                                                      888
          888                                                                      888
-                              ____          ,--r ~.       ,^"   `"w                   
-               ____        x^      'w     |L.._    ^m    A^''w     V                  
-              D    "W     [R``'w    '@   ,R   [.    [L  jR    K     K     m" ` `W     
-             A0     [H    R    [H    [   R     0     @  R     [     [L   0      R     
-            ["[L     0   R     [@     @ R      RH    [ A       K     W  A      A      
-           #"  [      K,R     /L[     0R     ,R D    [R       #0     [ #      #       
-         y^    ,%     '@    ,R   L    [     z"  [    [H      A [L     R      A       
-          `  "   T_    'W ,^     0    [L_,.#     L   [H    zC   0     @     R         
-                  ^~-.. <^        %_     ,4`     T,   " ^"x"    !L    0__.gR         
-                                    ``" `          "----^"        Y.____x^"           
+                              ____          ,--r ~.       ,^"   `"w
+               ____        x^      'w     |L.._    ^m    A^''w     V
+              D    "W     [R``'w    '@   ,R   [.    [L  jR    K     K     m" ` `W
+             A0     [H    R    [H    [   R     0     @  R     [     [L   0      R
+            ["[L     0   R     [@     @ R      RH    [ A       K     W  A      A
+           #"  [      K,R     /L[     0R     ,R D    [R       #0     [ #      #
+         y^    ,%     '@    ,R   L    [     z"  [    [H      A [L     R      A
+          `  "   T_    'W ,^     0    [L_,.#     L   [H    zC   0     @     R
+                  ^~-.. <^        %_     ,4`     T,   " ^"x"    !L    0__.gR
+                                    ``" `          "----^"        Y.____x^"
 ---------------------------------------------------------------------------------------
 
 Typical pipeline command:
@@ -204,8 +204,8 @@ Typical pipeline command:
   nextflow run main.nf --manifest <manifest> --annotation <gff> --reference <fasta> --library_strandedness [reverse] --outdir [./results]
 
 Input Options
-  --manifest                      [string]  Path to a CSV manifest comprising 4 columns (ID, REP, R1, R2). ID is an arbitrary sample ID, REP describes replicate 
-                                            structure, R1 and R2 columns contain paths to *.fastq.gz files. 
+  --manifest                      [string]  Path to a CSV manifest comprising 4 columns (ID, REP, R1, R2). ID is an arbitrary sample ID, REP describes replicate
+                                            structure, R1 and R2 columns contain paths to *.fastq.gz files.
   --reference                     [string]  null
   --annotation                    [string]  Path to genome annotation in GFF format.
   --library_strandedness          [string]  Strandedness of the RNAseq library. Options: reverse, forward, none. (accepted: reverse, forward, none)
@@ -219,10 +219,10 @@ Output Options
   --keep_filtered_bam             [boolean] Keep filtered bam files.
 
 Data Combining Options
-  --combine_level                 [string]  Combine fastqs at the specified level. `replicate` will combine fastqs that have the same sample and replicate 
-                                            identifiers in the manifest. `sample` will combine fastqs that have the same sample identifiers in the manifest 
-                                            (i.e. it will combine replicates of the same sample). `none` will perform no combining (sample identifiers must be 
-                                            unique in this case). (accepted: replicate, sample, none) [default: none] 
+  --combine_level                 [string]  Combine fastqs at the specified level. `replicate` will combine fastqs that have the same sample and replicate
+                                            identifiers in the manifest. `sample` will combine fastqs that have the same sample identifiers in the manifest
+                                            (i.e. it will combine replicates of the same sample). `none` will perform no combining (sample identifiers must be
+                                            unique in this case). (accepted: replicate, sample, none) [default: none]
 
 QC Options
   --skip_trim                     [boolean] Skip trimming.
@@ -232,31 +232,34 @@ QC Options
   --min_mapping_quality           [integer] Remove alignments with MAPQ score smaller than given value. [default: 2]
 
 Mapping Options
-  --bowtie2_args                  [string]  Options and arguments that will be supplied to Bowtie2 to modify mapping behaviour. [default: --local 
-                                            --very-sensitive-local --rdg 8,4 --rfg 8,4 --no-mixed] 
+  --bowtie2_args                  [string]  Options and arguments that will be supplied to Bowtie2 to modify mapping behaviour. [default: --local
+                                            --very-sensitive-local --rdg 8,4 --rfg 8,4 --no-mixed]
 
 Counting Options
-  --htseq_args                    [string]  Options and arguments that will be supplied to htseq-count to modify counting behaviour. [default: --type gene 
-                                            --idattr locus_tag --nonunique none --secondary-alignments ignore] 
-  --samtools_filter_args          [string]  Arguments supplied to samtools to will be used to filter alignments of interest for counting. [default: -f 
-                                            2] 
+  --count_method                  [string]  Method to use for read counting. (accepted: htseq, featurecounts) [default: htseq]
+  --featurecounts_args            [string]  Options and arguments that will be supplied to featureCounts to modify counting behaviour. [default: -p -B
+                                            -C]
+  --htseq_args                    [string]  Options and arguments that will be supplied to htseq-count to modify counting behaviour. [default: --type gene
+                                            --idattr locus_tag --nonunique none --secondary-alignments ignore]
+  --samtools_filter_args          [string]  Arguments supplied to samtools to will be used to filter alignments of interest for counting. [default: -f
+                                            2]
   --annotate_feature_assignment   [boolean] Generate an annotated bam file where each read is assigned to the feature for which is has been counted.
 
 Coverage Options
   --skip_strand_specific_analysis [boolean] Skip strand-specific coverage analysis.
   --pairwise                      [boolean] Generate pairwise sample comparison coverage plots.
-  --coverage_window_size          [integer] Size of window or step over which to compute cumulative per base coverage (output as a wig file). [default: 
-                                            100] 
-  --coverage_context              [integer] Size of context around the annotated region (coverage_window_size base pairs either side) in the coverage plot. 
-                                            [default: 100] 
+  --coverage_window_size          [integer] Size of window or step over which to compute cumulative per base coverage (output as a wig file). [default:
+                                            100]
+  --coverage_context              [integer] Size of context around the annotated region (coverage_window_size base pairs either side) in the coverage plot.
+                                            [default: 100]
 
 Resource Request Options
   --max_cpus                      [integer] Maximum number of CPUs that can be requested for any single job. [default: 256]
   --max_memory                    [string]  Maximum amount of memory that can be requested for any single job. [default: 2.9 TB]
   --max_time                      [string]  Maximum amount of time that can be requested for any single job. [default: 30d]
-  --max_retries                   [integer] Maximum number of retries before ingnoring process failure. [default: 2]
-  --retry_strategy                [string]  Default retry strategy (used in the event that software fails to process data for an unexpected reason) 
-                                            [default: ignore] 
+  --max_retries                   [integer] Maximum number of retries before ignnoring process failure. [default: 2]
+  --retry_strategy                [string]  Default retry strategy (used in the event that software fails to process data for an unexpected reason)
+                                            [default: ignore]
   --submit_rate_limit             [string]  LSF-specific: Change the rate at which the pipeline will submit jobs on the cluster.
   --queue_size                    [string]  LSF-specific: Maximum number of jobs pipeline will submit jobs on the cluster at any given time.
 
@@ -267,8 +270,8 @@ Generic options
   --tracedir                      [string]  Directory in which to save pipeline reporting information. [default: ./results/pipeline_info]
 
 Config Inheritance Options
-  --generic_config_base           [string]  Inherit configuration from a base URL. [default: 
-                                            https://raw.githubusercontent.com/sanger-pathogens/nextflow-commons/] 
+  --generic_config_base           [string]  Inherit configuration from a base URL. [default:
+                                            https://raw.githubusercontent.com/sanger-pathogens/nextflow-commons/]
   --generic_config_version        [string]  Specify the version to inherit (will be appended to base URL). [default: master]
   --generic_config                [string]  Override the above with a generic config URL (or file path).
   --nf_core_custom_config_base    [string]  nf-core configuration base URL. [default: https://raw.githubusercontent.com/nf-core/configs/]
@@ -298,7 +301,8 @@ results/
 │   ├── minus_filter
 │   ├── plus_filter
 │   └── user_defined_filter
-├── htseq
+├── htseq or featurecounts
+│   └── gene_counts.tsv
 ├── multiqc
 │   ├── multiqc_report_data
 │   ├── multiqc_report_plots
@@ -326,7 +330,7 @@ The content of these folders is described in more detail below. Note that output
 | `picard/metrics` | Contains deduplication metrics files generated by `picard`. |
 | `filtered_bams/(plus\|minus)_filter` | Contains reverse (`plus_filter`) and forward (`minus_filter`) strand-specific BAM files, containing reads that mapped to each strand of the given `--reference`.<br> Generated with `--keep_filter_bam`. |
 | `filtered_bams/user_defined_filter` | Contains BAM files, containing reads that mapped to the given `--reference` and filtered using `--samtools_filter_args`.<br> Generated with `--keep_filter_bam`. |
-| `htseq` | Contains HTSeq-generated count data (`tsv` format) suitable for differential expression analysis. It also contains a summary across all samples `gene_counts.tsv`. |
+| `htseq` or `featurecounts` | Contains HTSeq-generated or featureCounts-generated count data (`tsv` format) suitable for differential expression analysis. It also contains a summary across all samples `gene_counts.tsv`. |
 | `multiqc` | Contains a summary of all interesting QC metrics/statistics generated by the pipeline. |
 | `sorted_bams` | Contains raw sorted BAM files (prior to filtering).<br> Generated with `--keep_sorted_bam`. |
 | `qc/fastqc` | Contains FASTQC data and reports for both trimmed and raw `*.fastq.gz` files. |
