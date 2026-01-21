@@ -8,6 +8,12 @@ include {
     COMBINE_HTSEQ
 } from '../modules/htseq'
 
+include {
+    FEATURECOUNTS_COUNT;
+    COMBINE_FEATURECOUNTS
+} from '../modules/featurecounts'
+
+
 workflow COUNT_READS {
     take:
     ch_reads_to_filter
@@ -36,15 +42,31 @@ workflow COUNT_READS {
     // COUNTING
     ch_filtered_reads
         .combine(annotation)
-        .set {htseq_input}
-    HTSEQ_COUNT(htseq_input)
-    HTSEQ_COUNT.out.sample_feature_counts
-        .map { ID, count_table -> count_table }
-        .collect()
-        .set { ch_count_tables }
+        .set {ch_count_input}
+    
+    if (params.count_method == "featurecounts") {
+        
+        FEATURECOUNTS_COUNT(ch_count_input)
+        FEATURECOUNTS_COUNT.out.sample_feature_counts
+            .map { meta, count_table -> count_table }
+            .collect()
+            .set { ch_count_tables }
 
-    COMBINE_HTSEQ(ch_count_tables)
+        COMBINE_FEATURECOUNTS(ch_count_tables)
+    
+    } else if (params.count_method == 'htseq') {
+    
+        HTSEQ_COUNT(ch_count_input)
+        HTSEQ_COUNT.out.sample_feature_counts
+            .map { meta, count_table -> count_table }
+            .collect()
+            .set { ch_count_tables }
 
+        COMBINE_HTSEQ(ch_count_tables)
+    } else {
+        error "Unknown value for params.count_method: '${params.count_method}'. Use 'htseq' or 'featurecounts'."
+    }
+    
     emit:
     ch_samtools_stats
 }

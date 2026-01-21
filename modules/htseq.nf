@@ -1,8 +1,8 @@
 process HTSEQ_COUNT {
     tag "${meta.ID} : REP${meta.REP}"
     label 'cpu_1'
-    label 'mem_100M'
     label 'time_1'
+    label 'mem_16'
 
     conda "bioconda::htseq=2.0.5"
     container 'quay.io/biocontainers/htseq:2.0.5--py310h5aa3a86_0'
@@ -14,8 +14,8 @@ process HTSEQ_COUNT {
     tuple val(meta), path(mapped_reads), path(annotation)
 
     output:
-    tuple val(meta), path("${count_table}"),  emit: sample_feature_counts
-    tuple val(meta), path("${annotated_bam}"), optional: true,  emit: annotated_bam
+    tuple val(meta), path(count_table),  emit: sample_feature_counts
+    tuple val(meta), path(annotated_bam), optional: true,  emit: annotated_bam
 
     script:
     output_stem = "${meta.ID}_REP${meta.REP}"
@@ -59,10 +59,10 @@ process HTSEQ_COUNT {
 
 process COMBINE_HTSEQ {
     label 'cpu_1'
-    label 'mem_100M'
     label 'time_1'
+    label 'mem_16'
 
-    publishDir "${params.outdir}/htseq", mode: 'copy', overwrite: true, pattern: "*_counts.tsv"
+    publishDir "${params.outdir}/htseq", mode: 'copy', overwrite: true
 
     container 'ubuntu:22.04'
 
@@ -70,7 +70,7 @@ process COMBINE_HTSEQ {
     path(count_tables)
 
     output:
-    path("${counts_table}"),  emit: all_feature_counts
+    path(counts_table),  emit: all_feature_counts
 
     script:
     counts_table = "gene_counts.tsv"
