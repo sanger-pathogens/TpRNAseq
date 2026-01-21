@@ -257,7 +257,7 @@ Resource Request Options
   --max_cpus                      [integer] Maximum number of CPUs that can be requested for any single job. [default: 256]
   --max_memory                    [string]  Maximum amount of memory that can be requested for any single job. [default: 2.9 TB]
   --max_time                      [string]  Maximum amount of time that can be requested for any single job. [default: 30d]
-  --max_retries                   [integer] Maximum number of retries before ignnoring process failure. [default: 2]
+  --max_retries                   [integer] Maximum number of retries before ignoring process failure. [default: 2]
   --retry_strategy                [string]  Default retry strategy (used in the event that software fails to process data for an unexpected reason)
                                             [default: ignore]
   --submit_rate_limit             [string]  LSF-specific: Change the rate at which the pipeline will submit jobs on the cluster.
